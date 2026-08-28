@@ -6,16 +6,24 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Canvas Layer สำหรับเอฟเฟกต์เลเซอร์ */
+#laserCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* เพื่อให้สามารถคลิกปุ่มหรือเลื่อนหน้าเว็บผ่าน Canvas ได้ปกติ */
+    z-index: 9999;
+}
+
 body {
     background-color: #0b0f19;
     color: #f1f5f9;
     line-height: 1.6;
-  background-image: 
-    linear-gradient(to bottom, rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.92)),
-    url('shin.jpg');
-    url('shin.jpg');
+    background-image: 
         linear-gradient(to bottom, rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.92)),
-        url('https://placehold.co/1920x1080/1a0b2e/c084fc?text=Godzilla+Atomic+Beam+Purple+Theme');
+        url('shin.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -56,7 +64,7 @@ h1, h2, h3, h4 {
     margin-bottom: 15px;
 }
 
-/* Navigation Bar (Glassmorphism สไตล์อนาคต) */
+/* Navigation Bar */
 .navbar {
     position: sticky;
     top: 0;
@@ -109,7 +117,7 @@ h1, h2, h3, h4 {
     box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
 }
 
-/* Card Design (เข้ากับธีมม่วง-ฟ้า) */
+/* Card Design */
 .card {
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(16px);
@@ -221,7 +229,7 @@ h1, h2, h3, h4 {
     z-index: 1;
 }
 
-/* Common Page Content Setup */
+/* Common Page Setup */
 .page-content {
     padding: 60px 0;
 }
@@ -306,7 +314,7 @@ h1, h2, h3, h4 {
     margin: 20px 0;
 }
 
-/* Timeline Setup */
+/* Timeline */
 .timeline {
     position: relative;
     max-width: 800px;
