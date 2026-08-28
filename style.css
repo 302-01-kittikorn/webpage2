@@ -7,19 +7,16 @@
 }
 
 body {
-    background-color: #0b0f19; /* สีพื้นหลังสำรอง */
+    background-color: #0b0f19;
     color: #f1f5f9;
     line-height: 1.6;
-    /* --- เริ่มส่วนที่อัปเดต --- */
-    /* ใช้รูปภาพพื้นหลังธีม Godzilla สีม่วง */
-    /* *** สำคัญ: ต้องมีไฟล์รูปภาพชื่อ godzilla-bg.jpg อยู่ในโฟลเดอร์เดียวกับ style.css *** */
+    /* ใช้รูปภาพ Godzilla Atomic Beam สีม่วงเป็นพื้นหลังหลัก พร้อม Overlay เพิ่มความอ่านง่าย */
     background-image: 
-        linear-gradient(to bottom, rgba(11, 15, 25, 0.8), rgba(11, 15, 25, 0.95)), /* เลเยอร์สีทับเพื่อให้ข้อความอ่านง่าย */
-        url('godzilla-bg.jpg'); /* อ้างอิงไฟล์รูปภาพพื้นหลัง */
-    /* --- จบส่วนที่อัปเดต --- */
-    background-size: cover; /* ขยายรูปภาพให้เต็มหน้าจอ */
-    background-position: center; /* จัดรูปภาพให้อยู่ตรงกลาง */
-    background-attachment: fixed; /* ตรึงรูปภาพพื้นหลังไว้เมื่อเลื่อนหน้าจอ */
+        linear-gradient(to bottom, rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.92)),
+        url('https://placehold.co/1920x1080/1a0b2e/c084fc?text=Godzilla+Atomic+Beam+Purple+Theme');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -35,35 +32,35 @@ main {
     padding: 0 20px;
 }
 
-/* Typography & Badges */
+/* Typography & Accent Colors */
 h1, h2, h3, h4 {
     color: #ffffff;
 }
 
 .highlight {
-    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    background: linear-gradient(45deg, #c084fc, #a855f7, #38bdf8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .badge {
-    background: rgba(0, 242, 254, 0.15);
-    color: #00f2fe;
+    background: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.85rem;
-    border: 1px solid rgba(0, 242, 254, 0.3);
+    border: 1px solid rgba(192, 132, 252, 0.4);
     display: inline-block;
     margin-bottom: 15px;
 }
 
-/* Navigation Bar */
+/* Navigation Bar (Glassmorphism สไตล์อนาคต) */
 .navbar {
     position: sticky;
     top: 0;
     background: rgba(11, 15, 25, 0.85);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(192, 132, 252, 0.2);
     z-index: 1000;
 }
 
@@ -81,10 +78,11 @@ h1, h2, h3, h4 {
     font-weight: 700;
     color: #fff;
     text-decoration: none;
+    letter-spacing: 1px;
 }
 
 .logo span {
-    color: #00f2fe;
+    color: #c084fc;
 }
 
 .nav-links {
@@ -97,34 +95,36 @@ h1, h2, h3, h4 {
     color: #cbd5e1;
     text-decoration: none;
     font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
     transition: all 0.3s ease;
 }
 
 .nav-links a:hover,
 .nav-links a.active {
-    color: #00f2fe;
-    background: rgba(0, 242, 254, 0.1);
+    color: #ffffff;
+    background: rgba(192, 132, 252, 0.25);
+    box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
 }
 
-/* Card Design */
+/* Card Design (เข้ากับธีมม่วง-ฟ้า) */
 .card {
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(192, 132, 252, 0.2);
     border-radius: 16px;
     padding: 25px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    border-color: rgba(0, 242, 254, 0.4);
+    border-color: rgba(192, 132, 252, 0.6);
+    box-shadow: 0 12px 40px rgba(192, 132, 252, 0.25);
 }
 
-/* Buttons */
+/* Buttons Design */
 .btn {
     display: inline-block;
     padding: 12px 24px;
@@ -136,25 +136,25 @@ h1, h2, h3, h4 {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #00f2fe, #00c6ff);
-    color: #0b0f19;
-    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+    background: linear-gradient(45deg, #a855f7, #c084fc);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
 }
 
 .btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
+    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.7);
     transform: translateY(-2px);
 }
 
 .btn-secondary {
     background: transparent;
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(192, 132, 252, 0.4);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #00f2fe;
+    background: rgba(192, 132, 252, 0.15);
+    border-color: #c084fc;
 }
 
 /* Hero Section */
@@ -196,29 +196,30 @@ h1, h2, h3, h4 {
 }
 
 .hero-img {
-    width: 320px;
-    height: 320px;
+    width: 300px;
+    height: 300px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid rgba(0, 242, 254, 0.5);
+    border: 3px solid #c084fc;
+    box-shadow: 0 0 25px rgba(192, 132, 252, 0.5);
     position: relative;
     z-index: 2;
     transition: transform 0.3s ease;
 }
 
 .hero-img:hover {
-    transform: scale(1.03);
+    transform: scale(1.04);
 }
 
 .image-bg-glow {
     position: absolute;
     width: 320px;
     height: 320px;
-    background: radial-gradient(circle, rgba(0,242,254,0.3) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, rgba(192,132,252,0.4) 0%, rgba(0,0,0,0) 70%);
     z-index: 1;
 }
 
-/* Common Page Setup */
+/* Common Page Content Setup */
 .page-content {
     padding: 60px 0;
 }
@@ -237,7 +238,7 @@ h1, h2, h3, h4 {
     color: #94a3b8;
 }
 
-/* Highlights Grid */
+/* Stat Grid */
 .grid-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -257,10 +258,10 @@ h1, h2, h3, h4 {
 .stat-card p {
     font-size: 1.3rem;
     font-weight: bold;
-    color: #00f2fe;
+    color: #c084fc;
 }
 
-/* Profile Section */
+/* Profile Page */
 .profile-grid {
     display: grid;
     grid-template-columns: 300px 1fr;
@@ -276,13 +277,14 @@ h1, h2, h3, h4 {
     height: 150px;
     border-radius: 50%;
     margin-bottom: 15px;
-    border: 2px solid #00f2fe;
+    border: 2px solid #c084fc;
 }
 
 .nickname-badge {
     display: inline-block;
     margin-top: 10px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 0.9rem;
@@ -302,7 +304,7 @@ h1, h2, h3, h4 {
     margin: 20px 0;
 }
 
-/* Timeline Section */
+/* Timeline Setup */
 .timeline {
     position: relative;
     max-width: 800px;
@@ -316,7 +318,7 @@ h1, h2, h3, h4 {
     top: 0;
     bottom: 0;
     width: 2px;
-    background: rgba(0, 242, 254, 0.3);
+    background: rgba(192, 132, 252, 0.4);
 }
 
 .timeline-item {
@@ -332,13 +334,14 @@ h1, h2, h3, h4 {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #00f2fe;
-    box-shadow: 0 0 10px #00f2fe;
+    background: #c084fc;
+    box-shadow: 0 0 12px #c084fc;
 }
 
 .year-badge {
-    font-size: 0.8rem;
-    color: #00f2fe;
+    font-size: 0.85rem;
+    color: #c084fc;
+    font-weight: bold;
 }
 
 .edu-highlights {
@@ -348,7 +351,8 @@ h1, h2, h3, h4 {
 }
 
 .tag {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(192, 132, 252, 0.1);
+    border: 1px solid rgba(192, 132, 252, 0.2);
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 0.85rem;
@@ -371,7 +375,7 @@ h1, h2, h3, h4 {
 .custom-table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(15, 23, 42, 0.75);
     border-radius: 12px;
     overflow: hidden;
 }
@@ -383,8 +387,8 @@ h1, h2, h3, h4 {
 }
 
 .custom-table th {
-    background: rgba(0, 242, 254, 0.1);
-    color: #00f2fe;
+    background: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
 }
 
 .status-badge {
@@ -399,8 +403,8 @@ h1, h2, h3, h4 {
 }
 
 .status-badge.active {
-    background: rgba(0, 242, 254, 0.2);
-    color: #00f2fe;
+    background: rgba(192, 132, 252, 0.25);
+    color: #c084fc;
 }
 
 /* Hobby Section */
@@ -420,16 +424,16 @@ h1, h2, h3, h4 {
 }
 
 .hobby-card h4 {
-    color: #00f2fe;
+    color: #c084fc;
     margin-bottom: 10px;
 }
 
 .feature-hobby {
-    border-color: rgba(255, 8, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.5);
 }
 
 .feature-hobby:hover {
-    border-color: #ff0844;
+    border-color: #ef4444;
 }
 
 /* Contact Section */
@@ -465,10 +469,10 @@ h1, h2, h3, h4 {
     margin-bottom: 20px;
 }
 
-/* Footer */
+/* Footer Design */
 footer {
     background: rgba(5, 8, 15, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(192, 132, 252, 0.2);
     padding: 40px 0 20px;
     margin-top: auto;
 }
@@ -499,7 +503,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: #00f2fe;
+    color: #c084fc;
 }
 
 .footer-bottom {
@@ -510,7 +514,7 @@ footer {
     font-size: 0.85rem;
 }
 
-/* Responsive Design */
+/* Responsive Support */
 @media (max-width: 768px) {
     .nav-container {
         flex-direction: column;
@@ -527,8 +531,8 @@ footer {
     }
 
     .hero-img, .image-bg-glow {
-        width: 240px;
-        height: 240px;
+        width: 230px;
+        height: 230px;
     }
 
     .grid-3, .hobby-grid, .contact-grid {
