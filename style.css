@@ -597,6 +597,6 @@ footer {
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    z-index: 99999 !important; /* ดันให้อยู่ชั้นบนสุด */
-    pointer-events: none !important; /* เพื่อให้ยังกดปุ่มต่างๆ บนหน้าเว็บเดิมได้ */
+    z-index: -1 !important; /* ส่งไปอยู่พื้นหลังสุด ไม่บังข้อความ */
+    pointer-events: none !important;
 }
