@@ -597,6 +597,6 @@ footer {
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    z-index: -1 !important; /* ส่งไปอยู่พื้นหลังสุด ไม่บังข้อความ */
+    z-index: 9999 !important;
     pointer-events: none !important;
 }
