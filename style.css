@@ -563,3 +563,31 @@ footer {
         text-align: center;
     }
 }
+/* --- Godzilla 3D & Laser Style --- */
+#godzilla-container {
+    position: fixed;
+    left: -450px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 450px;
+    height: 450px;
+    z-index: 999;
+    transition: left 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+}
+
+#godzilla-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+#laserCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    pointer-events: none;
+}
