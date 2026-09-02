@@ -581,22 +581,3 @@ footer {
     height: 100%;
     border: 0;
 }
-
-#laserCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1000;
-    pointer-events: none;
-}
-#laserCanvas {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 9999 !important;
-    pointer-events: none !important;
-}
