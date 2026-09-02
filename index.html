@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>หน้าแรก - Shogun Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Shin Godzilla 3D Intro & Laser</title>
+    <!-- นำเข้า CSS เดิมของคุณตามปกติ -->
 </head>
+<body>
+
+    <!-- พื้นที่วาง 3D Godzilla (ใส่ src ของโมเดล Sketchfab โดยตรง) -->
+    <div id="godzilla-container">
+        <iframe id="godzilla-frame" 
+                title="Shin Godzilla" 
+                src="https://sketchfab.com/models/d4283d3b9c514d03a254461f171b400f/embed?autostart=1&transparent=1&ui_controls=0&ui_infos=0&ui_watermark=0" 
+                allow="autoplay; fullscreen; xr-spatial-tracking">
+        </iframe>
+    </div>
+
+    <!-- Canvas วาดลำแสงเลเซอร์ -->
+    <canvas id="laserCanvas"></canvas>
+
+    <!-- เนื้อหาเดิมของเว็บไซต์คุณอยู่ตรงนี้ -->
+
+    <!-- เรียกใช้ laser.js ก่อนปิด body -->
+    <script src="laser.js"></script>
+</body>
+</html>
 <body>
    <div id="godzilla-container">
     <iframe id="godzilla-frame" allow="autoplay; fullscreen; vr"></iframe>
