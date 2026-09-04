@@ -563,3 +563,25 @@ footer {
         text-align: center;
     }
 }
+/* แถบเงื่อนไขสำหรับองค์ประกอบในเว็บเมื่อถูกเลเซอร์ */
+.godzilla-shake {
+    animation: gzShake 0.15s infinite alternate !important;
+    color: #c084fc !important;
+    text-shadow: 0 0 12px #a855f7, 0 0 20px #a855f7 !important;
+    transition: all 0.1s ease !important;
+}
+
+.godzilla-burned {
+    background: linear-gradient(135deg, #ff4500, #7e22ce) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px #ff4500, 0 0 40px #a855f7 !important;
+    border-color: #ffaa00 !important;
+    transform: scale(1.05) !important;
+    transition: all 0.15s ease !important;
+}
+
+@keyframes gzShake {
+    0% { transform: translate(2px, 1px) rotate(0deg); }
+    50% { transform: translate(-1px, -2px) rotate(-1deg); }
+    100% { transform: translate(-3px, 0px) rotate(1deg); }
+}
