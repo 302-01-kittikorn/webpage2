@@ -1,4 +1,4 @@
-// High-Detail Godzilla Intro & Laser Script
+// High-Detail Godzilla Intro, DOM Interaction & Ember Particles Script
 window.addEventListener('load', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -12,8 +12,8 @@ window.addEventListener('load', function() {
     let mouse = { x: -100, y: -100, isDown: false, active: false };
     let burnMarks = [];
     let particles = [];
+    let floatingEmbers = []; // อาร์เรย์สำหรับเก็บเถ้าถ่านลอย
 
-    // สถานะ Animation: 'ENTER', 'CHARGE', 'BEAM', 'READY'
     let state = 'ENTER';
     let introProgress = 0; 
     let godzillaX = -380; 
@@ -23,7 +23,26 @@ window.addEventListener('load', function() {
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
+        initEmbers();
     }
+
+    // สร้างเม็ดเถ้าถ่านลอยลอยกระจายทั่วจอ
+    function initEmbers() {
+        floatingEmbers = [];
+        const count = Math.floor(width / 25);
+        for (let i = 0; i < count; i++) {
+            floatingEmbers.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 0.8,
+                speedY: Math.random() * 0.8 + 0.3,
+                speedX: (Math.random() - 0.5) * 0.6,
+                color: Math.random() > 0.4 ? '#ff5500' : '#c084fc',
+                alpha: Math.random() * 0.7 + 0.2
+            });
+        }
+    }
+
     window.addEventListener('resize', resize);
     resize();
 
@@ -44,11 +63,9 @@ window.addEventListener('load', function() {
 
     function addBurnMark(x, y) {
         burnMarks.push({
-            x: x,
-            y: y,
+            x: x, y: y,
             radius: Math.random() * 12 + 16,
-            alpha: 1,
-            life: 200
+            alpha: 1, life: 200
         });
     }
 
@@ -57,33 +74,52 @@ window.addEventListener('load', function() {
             const angle = Math.random() * Math.PI * 2;
             const speed = Math.random() * (isIntro ? 10 : 5) + 2;
             particles.push({
-                x: x,
-                y: y,
+                x: x, y: y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 radius: Math.random() * (isIntro ? 5 : 3) + 1,
                 color: Math.random() > 0.3 ? '#c084fc' : (Math.random() > 0.5 ? '#e9d5ff' : '#ff4500'),
-                alpha: 1,
-                life: isIntro ? 45 : 25
+                alpha: 1, life: isIntro ? 45 : 25
             });
         }
     }
 
-    // วาดรูปทรงก๊อตซิลล่าแบบละเอียด (Detailed Godzilla Vector Art)
+    // ----------------------------------------------------
+    // ฟังก์ชันตรวจจับการชนของเลเซอร์กับองค์ประกอบบนเว็บ (DOM Interaction)
+    // ----------------------------------------------------
+    function interactWithDOM(laserX, laserY) {
+        // ดึงองค์ประกอบที่เลเซอร์พุ่งผ่าน
+        const elements = document.elementsFromPoint(laserX, laserY);
+
+        elements.forEach(el => {
+            if (el === canvas || el === document.body || el === document.documentElement) return;
+
+            const tag = el.tagName.toLowerCase();
+
+            // 1. ถ้าเลเซอร์โดนปุ่ม ให้เกิดเอฟเฟกต์ไฟลุก/ปุ่มไหม้
+            if (tag === 'button' || el.classList.contains('btn') || tag === 'a') {
+                el.classList.add('godzilla-burned');
+                setTimeout(() => el.classList.remove('godzilla-burned'), 400);
+            } 
+            // 2. ถ้าเลเซอร์โดนข้อความ ให้ข้อความสั่นและเปลี่ยนเป็นสีม่วง
+            else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'li', 'strong'].includes(tag)) {
+                el.classList.add('godzilla-shake');
+                setTimeout(() => el.classList.remove('godzilla-shake'), 300);
+            }
+        });
+    }
+
+    // Detailed Godzilla Vector Art
     function drawDetailedGodzilla(x, y, scale = 1, isCharging = false, chargeRatio = 0) {
         ctx.save();
         ctx.translate(x, y);
         ctx.scale(scale, scale);
 
-        // 1. วาดครีบหลังแหลมคม 3 ชั้น (High-Detail Dorsal Spines)
-        const spineSparks = isCharging ? chargeRatio : 0;
         const spines = [
-            // แถบหลักด้านหลัง
             { path: [[-120, 60], [-170, 20], [-130, -10], [-100, 30]], color: '#a855f7' },
             { path: [[-95, 30], [-145, -20], [-105, -45], [-75, 0]], color: '#c084fc' },
             { path: [[-70, 0], [-120, -60], [-80, -75], [-50, -25]], color: '#e9d5ff' },
             { path: [[-45, -25], [-85, -85], [-55, -95], [-30, -45]], color: '#ffffff' },
-            // แถบสำรองซ้อนชั้น
             { path: [[-140, 80], [-185, 50], [-150, 25], [-125, 55]], color: '#7e22ce' },
             { path: [[-110, 50], [-155, 10], [-120, -15], [-95, 20]], color: '#a855f7' }
         ];
@@ -102,45 +138,40 @@ window.addEventListener('load', function() {
             ctx.fill();
         });
 
-        // 2. วาดลำตัว หัว และกรามขรุขระรายละเอียดสูง (High-Detail Body & Head Silhouette)
         ctx.shadowBlur = isCharging ? 25 : 8;
         ctx.shadowColor = '#c084fc';
-        ctx.fillStyle = '#090a10'; // สีดำเข้มเน้นโครงเงา Kaiju
+        ctx.fillStyle = '#090a10';
 
         ctx.beginPath();
-        ctx.moveTo(-160, 200); // ฐานคอหลัง
+        ctx.moveTo(-160, 200);
         ctx.quadraticCurveTo(-140, 100, -100, 40);
-        ctx.lineTo(-70, -15); // ช่วงท้ายทอย
-        ctx.lineTo(-50, -40); // โหนกศีรษะ
-        ctx.lineTo(-20, -55); // สันหัวบน
-        ctx.lineTo(15, -45);  // โหนกคิ้ว
-        ctx.lineTo(40, -35);  // สันจมูก
-        ctx.lineTo(75, -20);  // ปลายจมูก
-        ctx.lineTo(80, -10);  // ริมฝีปากบน
+        ctx.lineTo(-70, -15);
+        ctx.lineTo(-50, -40);
+        ctx.lineTo(-20, -55);
+        ctx.lineTo(15, -45);
+        ctx.lineTo(40, -35);
+        ctx.lineTo(75, -20);
+        ctx.lineTo(80, -10);
         
-        // ฟันบน (Upper Teeth)
         ctx.lineTo(70, -5); ctx.lineTo(65, -12);
         ctx.lineTo(55, -3); ctx.lineTo(50, -10);
         ctx.lineTo(40, 0);  ctx.lineTo(35, -8);
-        ctx.lineTo(20, 5);  // เพดานปากใน
+        ctx.lineTo(20, 5);
 
-        // ช่องปากด้านใน (Mouth Cavity)
         ctx.lineTo(10, 15);
 
-        // ฟันล่างและกราม (Lower Jaw & Teeth)
         ctx.lineTo(25, 20); ctx.lineTo(30, 12);
         ctx.lineTo(42, 22); ctx.lineTo(48, 14);
         ctx.lineTo(60, 25); ctx.lineTo(68, 15);
-        ctx.lineTo(78, 28); // ปลายคาง
+        ctx.lineTo(78, 28);
         
-        ctx.lineTo(50, 45);  // รอยหยักคาง
-        ctx.lineTo(20, 60);  // ใต้คาง
-        ctx.lineTo(-20, 95); // เหนียงคอ
-        ctx.quadraticCurveTo(-60, 140, -90, 200); // อกและลำตัวหน้า
+        ctx.lineTo(50, 45);
+        ctx.lineTo(20, 60);
+        ctx.lineTo(-20, 95);
+        ctx.quadraticCurveTo(-60, 140, -90, 200);
         ctx.closePath();
         ctx.fill();
 
-        // 3. ดวงตาสีม่วงพิฆาต (Glowing Kaiju Eye)
         ctx.beginPath();
         ctx.ellipse(20, -30, 5, 3, Math.PI / 6, 0, Math.PI * 2);
         ctx.fillStyle = isCharging ? '#ffffff' : '#c084fc';
@@ -148,7 +179,6 @@ window.addEventListener('load', function() {
         ctx.shadowColor = '#ffffff';
         ctx.fill();
 
-        // 4. เอฟเฟกต์พลังงานในช่องปาก (Mouth Core Glow)
         if (isCharging) {
             ctx.beginPath();
             ctx.arc(35, 5, 16 + Math.random() * 6, 0, Math.PI * 2);
@@ -165,12 +195,11 @@ window.addEventListener('load', function() {
         ctx.clearRect(0, 0, width, height);
 
         // ----------------------------------------------------
-        // 1. INTRO ANIMATION (ฉากเปิดตัว Godzilla รายละเอียดสูง)
+        // 1. INTRO ANIMATION
         // ----------------------------------------------------
         if (state !== 'READY') {
             const headY = height * 0.48;
 
-            // เดินเข้ามาในหน้าจอ
             if (state === 'ENTER') {
                 godzillaX += (godzillaTargetX - godzillaX) * 0.045;
                 drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
@@ -179,7 +208,6 @@ window.addEventListener('load', function() {
                     state = 'CHARGE';
                 }
             } 
-            // ชาร์จพลังงาน Atomic Breath
             else if (state === 'CHARGE') {
                 chargeEnergy += 0.022;
                 drawDetailedGodzilla(godzillaX, headY, 1.6 + Math.sin(chargeEnergy * 14) * 0.03, true, chargeEnergy);
@@ -193,7 +221,6 @@ window.addEventListener('load', function() {
                     introProgress = 0;
                 }
             } 
-            // ยิงลำแสง Atomic Beam
             else if (state === 'BEAM') {
                 introProgress += 0.018;
                 const mouthX = godzillaX + 115;
@@ -204,7 +231,6 @@ window.addEventListener('load', function() {
                 const targetX = width * Math.min(introProgress * 1.25, 1);
                 const targetY = headY + Math.sin(introProgress * Math.PI * 2) * 85;
 
-                // ลำแสง Atomic Beam พิฆาต
                 const bWidth = 42 + Math.random() * 16;
                 ctx.save();
                 ctx.shadowBlur = 50;
@@ -232,13 +258,12 @@ window.addEventListener('load', function() {
                 ctx.stroke();
                 ctx.restore();
 
-                // รอยเผาไหม้บนหน้าจอ
-                if (Math.random() < 0.75) {
-                    addBurnMark(targetX, targetY);
-                }
+                // ตรวจจับปุ่ม/ข้อความที่ลำแสง Atomic Beam วิ่งผ่าน
+                interactWithDOM(targetX, targetY);
+
+                if (Math.random() < 0.75) addBurnMark(targetX, targetY);
                 addParticles(targetX, targetY, 9, true);
 
-                // สั่นหน้าจอ
                 canvas.style.transform = `translate(${(Math.random() - 0.5) * 14}px, ${(Math.random() - 0.5) * 14}px)`;
 
                 if (introProgress >= 1) {
@@ -249,7 +274,27 @@ window.addEventListener('load', function() {
         }
 
         // ----------------------------------------------------
-        // 2. BURN MARKS (รอยไหม้สะสม)
+        // 2. FLOATING ASH & EMBERS (ละอองเถ้าถ่านลอยช้าๆ)
+        // ----------------------------------------------------
+        floatingEmbers.forEach(e => {
+            ctx.save();
+            ctx.globalAlpha = e.alpha * (0.5 + Math.sin(Date.now() * 0.003 + e.x) * 0.5);
+            ctx.fillStyle = e.color;
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            e.y -= e.speedY;
+            e.x += e.speedX;
+            if (e.y < -10) {
+                e.y = height + 10;
+                e.x = Math.random() * width;
+            }
+        });
+
+        // ----------------------------------------------------
+        // 3. BURN MARKS
         // ----------------------------------------------------
         for (let i = burnMarks.length - 1; i >= 0; i--) {
             const b = burnMarks[i];
@@ -272,7 +317,7 @@ window.addEventListener('load', function() {
         }
 
         // ----------------------------------------------------
-        // 3. INTERACTIVE MOUSE LASER (โหมดเล่นเมาส์ตามปกติ)
+        // 4. INTERACTIVE MOUSE LASER
         // ----------------------------------------------------
         if (state === 'READY' && mouse.active) {
             const startX = width;
@@ -308,6 +353,9 @@ window.addEventListener('load', function() {
             ctx.stroke();
             ctx.restore();
 
+            // ตรวจจับเมื่อเอาเลเซอร์ชี้ใส่ปุ่มหรือข้อความ
+            interactWithDOM(mouse.x, mouse.y);
+
             addParticles(mouse.x, mouse.y, isClicking ? 6 : 2);
 
             if (isClicking && Math.random() < 0.4) {
@@ -316,7 +364,7 @@ window.addEventListener('load', function() {
         }
 
         // ----------------------------------------------------
-        // 4. SPARKS PARTICLES (ละอองไฟ)
+        // 5. SPARKS PARTICLES
         // ----------------------------------------------------
         for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
