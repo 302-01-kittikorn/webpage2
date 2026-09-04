@@ -1,175 +1,70 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. ตั้งค่า Canvas
     const canvas = document.getElementById('laserCanvas');
     const ctx = canvas.getContext('2d');
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
 
-    // 2. ดึงปุ่มกด
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
     const heatVentBtn = document.getElementById('heatVentBtn');
     const btnRoar = document.getElementById('btnRoar');
     const btnBlackout = document.getElementById('btnBlackout');
 
-    let isLaserActive = false;
-    let laserProgress = 0;
-    let shockwaves = [];
+    let isHeatVentActive = false;
+    let particles = [];
+    let lasers = [];
 
-    // ----------------------------------------------------
-    // [1] HEAT VENT MODE (ยิงลำแสงเลเซอร์ Godzilla ☢️)
-    // ----------------------------------------------------
+    // --- Event Listeners สำหรับปุ่มควบคุม ---
+
+    // 1. ปุ่ม Heat Vent (เปิด/ปิด โหมดเลเซอร์สแกนและเผาหน้าจอ)
     if (heatVentBtn) {
         heatVentBtn.addEventListener('click', () => {
-            document.body.classList.toggle('heat-vent-active');
-            heatVentBtn.classList.toggle('active');
-            
-            isLaserActive = document.body.classList.contains('heat-vent-active');
-            if (isLaserActive) {
-                laserProgress = 0;
-                triggerShake(1500);
+            isHeatVentActive = !isHeatVentActive;
+            heatVentBtn.classList.toggle('active', isHeatVentActive);
+            document.body.classList.toggle('heat-vent-active', isHeatVentActive);
+
+            if (isHeatVentActive) {
+                // สร้างลำแสงเลเซอร์ยิงกราดทันทีเมื่อเปิดใช้งาน
+                createLaserBeam();
             }
         });
     }
 
-    // ----------------------------------------------------
-    // [2] ROAR SHOCKWAVE (เสียงคำราม + คลื่นกระแทก 💥)
-    // ----------------------------------------------------
+    // 2. ปุ่ม Roar Shockwave (สั่นหน้าจอ + ยิงวงคลื่นกระแทก)
     if (btnRoar) {
         btnRoar.addEventListener('click', () => {
-            triggerShake(1000);
-
-            const elements = document.querySelectorAll('.card, h1, .btn, .hero-img');
-            elements.forEach(el => el.classList.add('godzilla-shake'));
-            
-            setTimeout(() => {
-                elements.forEach(el => el.classList.remove('godzilla-shake'));
-            }, 1000);
-
-            // เพิ่มคลื่นกระแทก 2 ชั้น
-            createShockwave(window.innerWidth / 2, window.innerHeight / 2);
-            setTimeout(() => createShockwave(window.innerWidth / 2, window.innerHeight / 2), 200);
+            triggerScreenShake(1000);
+            createShockwaveParticles();
         });
     }
 
-    // ----------------------------------------------------
-    // [3] YASHIORI OPERATION (โหมดเผาผลาญ/ไซเรน 🚨)
-    // ----------------------------------------------------
+    // 3. ปุ่ม Yashiori Operation (โหมดตัดไฟ)
     if (btnBlackout) {
         btnBlackout.addEventListener('click', () => {
             btnBlackout.classList.toggle('active');
-            
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => card.classList.toggle('godzilla-burned'));
-            triggerShake(500);
+            document.body.classList.toggle('godzilla-burned');
         });
     }
 
-    // ----------------------------------------------------
-    // ฟังก์ชันวาดรูป GODZILLA และ ลำแสงเลเซอร์
-    // ----------------------------------------------------
+    // --- ฟังก์ชันสร้างเอฟเฟกต์ ---
 
-    // วาดเงา Godzilla มุมซ้ายล่าง
-    function drawGodzillaSilhouette() {
-        const gx = 80;
-        const gy = canvas.height - 20;
-
-        ctx.save();
-        ctx.fillStyle = '#0a0518';
-        ctx.shadowColor = '#c084fc';
-        ctx.shadowBlur = isLaserActive ? 25 : 5;
-
-        // ตัว Godzilla
-        ctx.beginPath();
-        ctx.moveTo(gx - 100, canvas.height);
-        ctx.lineTo(gx - 60, gy - 180);
-        ctx.lineTo(gx - 20, gy - 220); // หัว
-        ctx.lineTo(gx + 30, gy - 200); // ปาก
-        ctx.lineTo(gx + 10, gy - 170);
-        ctx.lineTo(gx + 50, gy - 120);
-        ctx.lineTo(gx + 120, canvas.height);
-        ctx.closePath();
-        ctx.fill();
-
-        // ครีบหลังเรืองแสง (Spines)
-        const spineColors = isLaserActive ? ['#a855f7', '#c084fc', '#38bdf8', '#ffffff'] : ['#4c1d95'];
-        for (let i = 0; i < 5; i++) {
-            ctx.fillStyle = spineColors[Math.floor(Math.random() * spineColors.length)];
-            ctx.beginPath();
-            ctx.arc(gx - 50 + (i * 20), gy - 150 + (i * 25), 12 - i, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // ตาเรืองแสง
-        ctx.fillStyle = isLaserActive ? '#ff0055' : '#c084fc';
-        ctx.beginPath();
-        ctx.arc(gx + 5, gy - 205, 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
+    function createLaserBeam() {
+        lasers.push({
+            x: Math.random() * width,
+            y: 0,
+            targetX: Math.random() * width,
+            targetY: height,
+            width: Math.random() * 6 + 3,
+            alpha: 1,
+            color: '#c084fc'
+        });
     }
 
-    // วาดเลเซอร์ลำแสงปรมาณู (Atomic Laser Beam)
-    function drawLaserBeam() {
-        if (!isLaserActive) return;
-
-        if (laserProgress < 1) laserProgress += 0.05;
-
-        const startX = 110;
-        const startY = canvas.height - 210;
-        const targetX = canvas.width;
-        const targetY = 120;
-
-        const currentX = startX + (targetX - startX) * laserProgress;
-        const currentY = startY + (targetY - startY) * laserProgress;
-
-        ctx.save();
-
-        // 1. แสงฟุ้งรอบนอก (Outer Glow)
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(currentX, currentY);
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.8)';
-        ctx.lineWidth = 35 + Math.random() * 10;
-        ctx.lineCap = 'round';
-        ctx.shadowColor = '#a855f7';
-        ctx.shadowBlur = 30;
-        ctx.stroke();
-
-        // 2. ลำแสงชั้นกลาง (Inner Flame)
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(currentX, currentY);
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
-        ctx.lineWidth = 18 + Math.random() * 6;
-        ctx.stroke();
-
-        // 3. แกนกลางแสงสีขาว (Core Beam)
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(currentX, currentY);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 6;
-        ctx.stroke();
-
-        // สะเก็ดไฟ/ละอองพลังงานรอบลำแสง
-        for (let i = 0; i < 6; i++) {
-            const px = startX + Math.random() * (currentX - startX);
-            const py = startY + Math.random() * (currentY - startY) + (Math.random() - 0.5) * 40;
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(px, py, 4, 4);
-        }
-
-        ctx.restore();
-    }
-
-    // ----------------------------------------------------
-    // ระบบ Animation Loop
-    // ----------------------------------------------------
-    function triggerShake(duration) {
+    function triggerScreenShake(duration) {
         const startTime = Date.now();
         const interval = setInterval(() => {
             const elapsed = Date.now() - startTime;
@@ -178,43 +73,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(interval);
                 return;
             }
-            const x = (Math.random() - 0.5) * 10;
-            const y = (Math.random() - 0.5) * 10;
+            const x = (Math.random() - 0.5) * 12;
+            const y = (Math.random() - 0.5) * 12;
             document.body.style.transform = `translate(${x}px, ${y}px)`;
         }, 30);
     }
 
-    function createShockwave(x, y) {
-        shockwaves.push({
-            x: x,
-            y: y,
-            radius: 10,
-            maxRadius: Math.max(canvas.width, canvas.height) * 0.7,
-            alpha: 1
-        });
+    function createShockwaveParticles() {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        for (let i = 0; i < 60; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 8 + 4;
+            particles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: Math.random() * 4 + 2,
+                color: '#a855f7',
+                alpha: 1
+            });
+        }
     }
 
+    // --- Animation Loop ---
+
     function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, width, height);
 
-        // วาดคลื่น Shockwave
-        for (let i = shockwaves.length - 1; i >= 0; i--) {
-            const sw = shockwaves[i];
-            ctx.beginPath();
-            ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(192, 132, 252, ${sw.alpha})`;
-            ctx.lineWidth = 6;
-            ctx.stroke();
+        // วาดเอฟเฟกต์อนุภาคความร้อนลอยขึ้นเมื่อเปิด Heat Vent
+        if (isHeatVentActive) {
+            if (Math.random() < 0.4) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: height + 10,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: -Math.random() * 4 - 2,
+                    size: Math.random() * 3 + 1,
+                    color: Math.random() > 0.5 ? '#ff4500' : '#c084fc',
+                    alpha: 1
+                });
+            }
 
-            sw.radius += 20;
-            sw.alpha -= 0.02;
-
-            if (sw.alpha <= 0) shockwaves.splice(i, 1);
+            if (Math.random() < 0.05) {
+                createLaserBeam();
+            }
         }
 
-        // วาดองค์ประกอบ Godzilla และ เลเซอร์
-        drawGodzillaSilhouette();
-        drawLaserBeam();
+        // วาดเลเซอร์
+        for (let i = lasers.length - 1; i >= 0; i--) {
+            const l = lasers[i];
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(l.x, l.y);
+            ctx.lineTo(l.targetX, l.targetY);
+            ctx.strokeStyle = l.color;
+            ctx.lineWidth = l.width;
+            ctx.globalAlpha = l.alpha;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = l.color;
+            ctx.stroke();
+            ctx.restore();
+
+            l.alpha -= 0.02;
+            if (l.alpha <= 0) {
+                lasers.splice(i, 1);
+            }
+        }
+
+        // วาดและอัปเดตอนุภาค (Particles)
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.fill();
+
+            p.x += p.vx || 0;
+            p.y += p.vy || 0;
+            p.alpha -= 0.015;
+
+            if (p.alpha <= 0) {
+                particles.splice(i, 1);
+            }
+        }
 
         requestAnimationFrame(animate);
     }
