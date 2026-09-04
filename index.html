@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Intro Overlay) -->
+    <div id="introOverlay" class="intro-overlay">
+        <div class="intro-content">
+            <div class="intro-warning">⚠️ WARNING: RADIATION DETECTED</div>
+            <h1 class="intro-title">SHOGUN<span>.PORTFOLIO</span></h1>
+            <div class="intro-progress-bar">
+                <div id="introProgress" class="intro-progress"></div>
+            </div>
+            <p class="intro-subtext">CHARGING ATOMIC ENERGY... <span id="introPercent">0%</span></p>
+        </div>
+    </div>
+
     <!-- ปุ่มสลับโหมดระบายความร้อน Godzilla (Heat Vent Mode) มุมขวาล่าง -->
     <div class="godzilla-controls">
         <button id="heatVentBtn" class="control-btn" title="Godzilla Heat Vent Mode">
