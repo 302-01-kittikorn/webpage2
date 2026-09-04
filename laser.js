@@ -1,4 +1,4 @@
-// High-Detail Godzilla Intro, DOM Interaction & Ember Particles Script
+// Godzilla Intro with Bottom Fire Glow Effect (No City)
 window.addEventListener('load', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -12,7 +12,7 @@ window.addEventListener('load', function() {
     let mouse = { x: -100, y: -100, isDown: false, active: false };
     let burnMarks = [];
     let particles = [];
-    let floatingEmbers = []; // อาร์เรย์สำหรับเก็บเถ้าถ่านลอย
+    let fireEmbers = []; // ละอองประกายไฟด้านล่าง
 
     let state = 'ENTER';
     let introProgress = 0; 
@@ -23,22 +23,22 @@ window.addEventListener('load', function() {
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
-        initEmbers();
+        initFireEmbers();
     }
 
-    // สร้างเม็ดเถ้าถ่านลอยลอยกระจายทั่วจอ
-    function initEmbers() {
-        floatingEmbers = [];
-        const count = Math.floor(width / 25);
+    // สร้างประกายไฟก้นจอพุ่งขึ้นฟ้า
+    function initFireEmbers() {
+        fireEmbers = [];
+        const count = Math.floor(width / 15); // ปริมาณประกายไฟ
         for (let i = 0; i < count; i++) {
-            floatingEmbers.push({
+            fireEmbers.push({
                 x: Math.random() * width,
-                y: Math.random() * height,
-                radius: Math.random() * 2 + 0.8,
-                speedY: Math.random() * 0.8 + 0.3,
-                speedX: (Math.random() - 0.5) * 0.6,
-                color: Math.random() > 0.4 ? '#ff5500' : '#c084fc',
-                alpha: Math.random() * 0.7 + 0.2
+                y: height + Math.random() * 50,
+                radius: Math.random() * 2.5 + 1,
+                speedY: Math.random() * 1.5 + 0.6,
+                speedX: (Math.random() - 0.5) * 0.8,
+                color: Math.random() > 0.35 ? '#ff4500' : (Math.random() > 0.5 ? '#ff8c00' : '#c084fc'),
+                alpha: Math.random() * 0.8 + 0.2
             });
         }
     }
@@ -57,9 +57,7 @@ window.addEventListener('load', function() {
         if (state === 'READY') addBurnMark(e.clientX, e.clientY);
     });
 
-    window.addEventListener('mouseup', () => {
-        mouse.isDown = false;
-    });
+    window.addEventListener('mouseup', () => { mouse.isDown = false; });
 
     function addBurnMark(x, y) {
         burnMarks.push({
@@ -84,32 +82,22 @@ window.addEventListener('load', function() {
         }
     }
 
-    // ----------------------------------------------------
-    // ฟังก์ชันตรวจจับการชนของเลเซอร์กับองค์ประกอบบนเว็บ (DOM Interaction)
-    // ----------------------------------------------------
     function interactWithDOM(laserX, laserY) {
-        // ดึงองค์ประกอบที่เลเซอร์พุ่งผ่าน
         const elements = document.elementsFromPoint(laserX, laserY);
-
         elements.forEach(el => {
             if (el === canvas || el === document.body || el === document.documentElement) return;
-
             const tag = el.tagName.toLowerCase();
-
-            // 1. ถ้าเลเซอร์โดนปุ่ม ให้เกิดเอฟเฟกต์ไฟลุก/ปุ่มไหม้
             if (tag === 'button' || el.classList.contains('btn') || tag === 'a') {
                 el.classList.add('godzilla-burned');
                 setTimeout(() => el.classList.remove('godzilla-burned'), 400);
-            } 
-            // 2. ถ้าเลเซอร์โดนข้อความ ให้ข้อความสั่นและเปลี่ยนเป็นสีม่วง
-            else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'li', 'strong'].includes(tag)) {
+            } else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span'].includes(tag)) {
                 el.classList.add('godzilla-shake');
                 setTimeout(() => el.classList.remove('godzilla-shake'), 300);
             }
         });
     }
 
-    // Detailed Godzilla Vector Art
+    // Godzilla Silhouette & Spine Glow
     function drawDetailedGodzilla(x, y, scale = 1, isCharging = false, chargeRatio = 0) {
         ctx.save();
         ctx.translate(x, y);
@@ -152,19 +140,15 @@ window.addEventListener('load', function() {
         ctx.lineTo(40, -35);
         ctx.lineTo(75, -20);
         ctx.lineTo(80, -10);
-        
         ctx.lineTo(70, -5); ctx.lineTo(65, -12);
         ctx.lineTo(55, -3); ctx.lineTo(50, -10);
         ctx.lineTo(40, 0);  ctx.lineTo(35, -8);
         ctx.lineTo(20, 5);
-
         ctx.lineTo(10, 15);
-
         ctx.lineTo(25, 20); ctx.lineTo(30, 12);
         ctx.lineTo(42, 22); ctx.lineTo(48, 14);
         ctx.lineTo(60, 25); ctx.lineTo(68, 15);
         ctx.lineTo(78, 28);
-        
         ctx.lineTo(50, 45);
         ctx.lineTo(20, 60);
         ctx.lineTo(-20, 95);
@@ -195,7 +179,17 @@ window.addEventListener('load', function() {
         ctx.clearRect(0, 0, width, height);
 
         // ----------------------------------------------------
-        // 1. INTRO ANIMATION
+        // 1. เปลวเพลิงเรืองแสงด้านล่างจอ (Fire Atmosphere Glow)
+        // ----------------------------------------------------
+        const fireGrad = ctx.createLinearGradient(0, height, 0, height - 160);
+        fireGrad.addColorStop(0, 'rgba(255, 69, 0, 0.4)');
+        fireGrad.addColorStop(0.5, 'rgba(255, 120, 0, 0.15)');
+        fireGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = fireGrad;
+        ctx.fillRect(0, height - 180, width, 180);
+
+        // ----------------------------------------------------
+        // 2. GODZILLA INTRO ANIMATION
         // ----------------------------------------------------
         if (state !== 'READY') {
             const headY = height * 0.48;
@@ -258,13 +252,12 @@ window.addEventListener('load', function() {
                 ctx.stroke();
                 ctx.restore();
 
-                // ตรวจจับปุ่ม/ข้อความที่ลำแสง Atomic Beam วิ่งผ่าน
                 interactWithDOM(targetX, targetY);
 
                 if (Math.random() < 0.75) addBurnMark(targetX, targetY);
                 addParticles(targetX, targetY, 9, true);
 
-                canvas.style.transform = `translate(${(Math.random() - 0.5) * 14}px, ${(Math.random() - 0.5) * 14}px)`;
+                canvas.style.transform = `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)`;
 
                 if (introProgress >= 1) {
                     state = 'READY';
@@ -274,11 +267,11 @@ window.addEventListener('load', function() {
         }
 
         // ----------------------------------------------------
-        // 2. FLOATING ASH & EMBERS (ละอองเถ้าถ่านลอยช้าๆ)
+        // 3. ประกายไฟปลิวขึ้นฟ้าด้านล่าง (Bottom Embers)
         // ----------------------------------------------------
-        floatingEmbers.forEach(e => {
+        fireEmbers.forEach(e => {
             ctx.save();
-            ctx.globalAlpha = e.alpha * (0.5 + Math.sin(Date.now() * 0.003 + e.x) * 0.5);
+            ctx.globalAlpha = e.alpha * (0.6 + Math.sin(Date.now() * 0.005 + e.x) * 0.4);
             ctx.fillStyle = e.color;
             ctx.beginPath();
             ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
@@ -287,14 +280,16 @@ window.addEventListener('load', function() {
 
             e.y -= e.speedY;
             e.x += e.speedX;
+
+            // วนลูปกลับลงไปข้างล่างเมื่อลอยพ้นจอ
             if (e.y < -10) {
-                e.y = height + 10;
+                e.y = height + Math.random() * 20;
                 e.x = Math.random() * width;
             }
         });
 
         // ----------------------------------------------------
-        // 3. BURN MARKS
+        // 4. BURN MARKS
         // ----------------------------------------------------
         for (let i = burnMarks.length - 1; i >= 0; i--) {
             const b = burnMarks[i];
@@ -317,7 +312,7 @@ window.addEventListener('load', function() {
         }
 
         // ----------------------------------------------------
-        // 4. INTERACTIVE MOUSE LASER
+        // 5. MOUSE LASER INTERACTION
         // ----------------------------------------------------
         if (state === 'READY' && mouse.active) {
             const startX = width;
@@ -353,9 +348,7 @@ window.addEventListener('load', function() {
             ctx.stroke();
             ctx.restore();
 
-            // ตรวจจับเมื่อเอาเลเซอร์ชี้ใส่ปุ่มหรือข้อความ
             interactWithDOM(mouse.x, mouse.y);
-
             addParticles(mouse.x, mouse.y, isClicking ? 6 : 2);
 
             if (isClicking && Math.random() < 0.4) {
@@ -364,7 +357,7 @@ window.addEventListener('load', function() {
         }
 
         // ----------------------------------------------------
-        // 5. SPARKS PARTICLES
+        // 6. SPARKS PARTICLES
         // ----------------------------------------------------
         for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
