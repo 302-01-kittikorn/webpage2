@@ -20,6 +20,10 @@ window.addEventListener('load', function() {
     let godzillaTargetX = 110; 
     let chargeEnergy = 0;
 
+    // Elements ของ Intro Overlay
+    const introOverlay = document.getElementById('introOverlay');
+    const introProgressBar = document.getElementById('introProgress');
+
     // ----------------------------------------------------
     // HEAT VENT TOGGLE
     // ----------------------------------------------------
@@ -59,11 +63,17 @@ window.addEventListener('load', function() {
     window.addEventListener('resize', resize);
     resize();
 
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
+    // Mouse & Touch Event Listeners
+    const updateMousePos = (e) => {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        mouse.x = clientX;
+        mouse.y = clientY;
         mouse.active = true;
-    });
+    };
+
+    window.addEventListener('mousemove', updateMousePos);
+    window.addEventListener('touchmove', updateMousePos);
 
     window.addEventListener('mousedown', (e) => {
         mouse.isDown = true;
@@ -72,7 +82,16 @@ window.addEventListener('load', function() {
         }
     });
 
+    window.addEventListener('touchstart', (e) => {
+        mouse.isDown = true;
+        updateMousePos(e);
+        if (state === 'READY' && e.touches[0]) {
+            addBurnMark(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    });
+
     window.addEventListener('mouseup', () => { mouse.isDown = false; });
+    window.addEventListener('touchend', () => { mouse.isDown = false; });
 
     function addBurnMark(x, y) {
         burnMarks.push({
@@ -100,7 +119,7 @@ window.addEventListener('load', function() {
     function interactWithDOM(laserX, laserY) {
         const elements = document.elementsFromPoint(laserX, laserY);
         elements.forEach(el => {
-            if (el === canvas || el === document.body || el === document.documentElement) return;
+            if (el === canvas || el === document.body || el === document.documentElement || el === introOverlay) return;
             const tag = el.tagName.toLowerCase();
             if (tag === 'button' || el.classList.contains('btn') || tag === 'a') {
                 el.classList.add('godzilla-burned');
@@ -197,6 +216,10 @@ window.addEventListener('load', function() {
                 godzillaX += (godzillaTargetX - godzillaX) * 0.045;
                 drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
 
+                // อัปเดต Progress Bar ช่วงเดินเข้า (0% - 30%)
+                const enterProgress = Math.min(1, (godzillaX - (-380)) / (godzillaTargetX - (-380)));
+                if (introProgressBar) introProgressBar.style.width = `${enterProgress * 30}%`;
+
                 if (Math.abs(godzillaX - godzillaTargetX) < 2) {
                     state = 'CHARGE';
                 }
@@ -208,6 +231,9 @@ window.addEventListener('load', function() {
                 const mouthX = godzillaX + 115;
                 const mouthY = headY + 8;
                 addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
+
+                // อัปเดต Progress Bar ช่วงชาร์จ พลัง (30% - 60%)
+                if (introProgressBar) introProgressBar.style.width = `${30 + chargeEnergy * 30}%`;
 
                 if (chargeEnergy >= 1) {
                     state = 'BEAM';
@@ -258,9 +284,17 @@ window.addEventListener('load', function() {
 
                 canvas.style.transform = `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)`;
 
+                // อัปเดต Progress Bar ช่วงยิงแสง (60% - 100%)
+                if (introProgressBar) introProgressBar.style.width = `${60 + introProgress * 40}%`;
+
                 if (introProgress >= 1) {
                     state = 'READY';
                     canvas.style.transform = 'none';
+
+                    // ซ่อน Intro Overlay เมื่อแอนิเมชันจบ
+                    if (introOverlay) {
+                        introOverlay.classList.add('fade-out');
+                    }
                 }
             }
         }
