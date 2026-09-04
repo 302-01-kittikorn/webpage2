@@ -1,4 +1,4 @@
-// High-Detail Godzilla Intro, Web Audio SFX & Heat Vent Mode
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode
 window.addEventListener('load', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -21,118 +21,8 @@ window.addEventListener('load', function() {
     let chargeEnergy = 0;
 
     // ----------------------------------------------------
-    // WEB AUDIO API SYSTEM (สร้างเสียงสังเคราะห์โดยไม่ต้องใช้ไฟล์ MP3)
+    // HEAT VENT TOGGLE
     // ----------------------------------------------------
-    let audioCtx = null;
-    let isSoundEnabled = false;
-
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
-
-    // เสียงเดินก้าวหนักๆ (Footstep)
-    function playFootstepSFX() {
-        if (!isSoundEnabled || !audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.3);
-        
-        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-    }
-
-    // เสียงชาร์จพลังงานความถี่สูง (Charge Hum)
-    let chargeOsc = null;
-    let chargeGain = null;
-    function startChargeSFX() {
-        if (!isSoundEnabled || !audioCtx || chargeOsc) return;
-        chargeOsc = audioCtx.createOscillator();
-        chargeGain = audioCtx.createGain();
-        
-        chargeOsc.type = 'sawtooth';
-        chargeOsc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        chargeOsc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 2.5);
-
-        chargeGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        chargeGain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 2.5);
-
-        chargeOsc.connect(chargeGain);
-        chargeGain.connect(audioCtx.destination);
-        chargeOsc.start();
-    }
-
-    function stopChargeSFX() {
-        if (chargeOsc) {
-            chargeGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-            setTimeout(() => {
-                if (chargeOsc) { chargeOsc.stop(); chargeOsc = null; }
-            }, 200);
-        }
-    }
-
-    // เสียงยิง Atomic Beam (Laser Blast)
-    function playBeamSFX() {
-        if (!isSoundEnabled || !audioCtx) return;
-        const bufferSize = audioCtx.sampleRate * 0.5;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1; // Noise
-        }
-
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
-
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        filter.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 0.5);
-
-        const gain = audioCtx.createGain();
-        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        noise.start();
-    }
-
-    // ----------------------------------------------------
-    // CONTROLS HANDLERS (Heat Vent & Sound Buttons)
-    // ----------------------------------------------------
-    const soundBtn = document.getElementById('soundToggleBtn');
-    if (soundBtn) {
-        soundBtn.addEventListener('click', () => {
-            initAudio();
-            isSoundEnabled = !isSoundEnabled;
-            const icon = document.getElementById('soundIcon');
-            const label = document.getElementById('soundLabel');
-            if (isSoundEnabled) {
-                icon.textContent = '🔊';
-                label.textContent = 'SFX ON';
-                soundBtn.classList.add('active');
-            } else {
-                icon.textContent = '🔇';
-                label.textContent = 'SFX OFF';
-                soundBtn.classList.remove('active');
-            }
-        });
-    }
-
     const heatVentBtn = document.getElementById('heatVentBtn');
     if (heatVentBtn) {
         heatVentBtn.addEventListener('click', () => {
@@ -179,7 +69,6 @@ window.addEventListener('load', function() {
         mouse.isDown = true;
         if (state === 'READY') {
             addBurnMark(e.clientX, e.clientY);
-            playBeamSFX();
         }
     });
 
@@ -289,8 +178,6 @@ window.addEventListener('load', function() {
         ctx.restore();
     }
 
-    let stepTimer = 0;
-
     function render() {
         ctx.clearRect(0, 0, width, height);
 
@@ -310,13 +197,8 @@ window.addEventListener('load', function() {
                 godzillaX += (godzillaTargetX - godzillaX) * 0.045;
                 drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
 
-                // เล่นเสียงเดินก้าวหนักๆ
-                stepTimer++;
-                if (stepTimer % 28 === 0) playFootstepSFX();
-
                 if (Math.abs(godzillaX - godzillaTargetX) < 2) {
                     state = 'CHARGE';
-                    startChargeSFX();
                 }
             } 
             else if (state === 'CHARGE') {
@@ -328,8 +210,6 @@ window.addEventListener('load', function() {
                 addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
 
                 if (chargeEnergy >= 1) {
-                    stopChargeSFX();
-                    playBeamSFX();
                     state = 'BEAM';
                     introProgress = 0;
                 }
