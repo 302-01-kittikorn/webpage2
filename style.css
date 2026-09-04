@@ -3,705 +3,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'S/* Reset & General Setup */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Canvas Layer สำหรับเอฟเฟกต์เลเซอร์และเปลวเพลิง (อยู่ด้านหลังสุด ไม่บังข้อความ) */
-#laserCanvas {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: -1 !important; /* ส่งไปอยู่ชั้นหลังสุด เพื่อไม่ให้บังข้อความ */
-    pointer-events: none !important; /* คลิกทะลุปุ่มและข้อความได้ปกติ */
-}
-
-body {
-    background-color: #0b0f19;
-    color: #f1f5f9;
-    line-height: 1.6;
-    background-image: 
-        linear-gradient(to bottom, rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.92)),
-        url('shin.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-main {
-    flex: 1;
-}
-
-.container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Typography & Accent Colors */
-h1, h2, h3, h4 {
-    color: #ffffff;
-}
-
-.highlight {
-    background: linear-gradient(45deg, #c084fc, #a855f7, #38bdf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: all 0.4s ease;
-}
-
-.badge {
-    background: rgba(192, 132, 252, 0.15);
-    color: #c084fc;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    border: 1px solid rgba(192, 132, 252, 0.4);
-    display: inline-block;
-    margin-bottom: 15px;
-}
-
-/* Navigation Bar */
-.navbar {
-    position: sticky;
-    top: 0;
-    background: rgba(11, 15, 25, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(192, 132, 252, 0.2);
-    z-index: 1000;
-}
-
-.nav-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-}
-
-.logo {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #fff;
-    text-decoration: none;
-    letter-spacing: 1px;
-}
-
-.logo span {
-    color: #c084fc;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 20px;
-}
-
-.nav-links a {
-    color: #cbd5e1;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 6px 14px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.nav-links a:hover,
-.nav-links a.active {
-    color: #ffffff;
-    background: rgba(192, 132, 252, 0.25);
-    box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
-}
-
-/* Card Design */
-.card {
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(192, 132, 252, 0.2);
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(192, 132, 252, 0.6);
-    box-shadow: 0 12px 40px rgba(192, 132, 252, 0.25);
-}
-
-/* Buttons Design */
-.btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: linear-gradient(45deg, #a855f7, #c084fc);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-}
-
-.btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.7);
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: #fff;
-    border: 1px solid rgba(192, 132, 252, 0.4);
-}
-
-.btn-secondary:hover {
-    background: rgba(192, 132, 252, 0.15);
-    border-color: #c084fc;
-}
-
-/* Hero Section */
-.hero-section {
-    padding: 80px 0;
-}
-
-.hero-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: center;
-}
-
-.hero-text h1 {
-    font-size: 2.8rem;
-    margin-bottom: 15px;
-    line-height: 1.2;
-}
-
-.tagline {
-    font-size: 1.1rem;
-    color: #94a3b8;
-    margin-bottom: 25px;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: 15px;
-}
-
-.hero-image-wrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-}
-
-.hero-img {
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #c084fc;
-    box-shadow: 0 0 25px rgba(192, 132, 252, 0.5);
-    position: relative;
-    z-index: 2;
-    transition: transform 0.3s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-}
-
-.hero-img:hover {
-    transform: scale(1.04);
-}
-
-.image-bg-glow {
-    position: absolute;
-    width: 320px;
-    height: 320px;
-    background: radial-gradient(circle, rgba(192,132,252,0.4) 0%, rgba(0,0,0,0) 70%);
-    z-index: 1;
-}
-
-/* Common Page Setup */
-.page-content {
-    padding: 60px 0;
-}
-
-.page-header {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.page-header h2 {
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-}
-
-.page-header p {
-    color: #94a3b8;
-}
-
-/* Stat Grid */
-.grid-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.stat-card {
-    text-align: center;
-}
-
-.stat-card h3 {
-    font-size: 1rem;
-    color: #94a3b8;
-    margin-bottom: 5px;
-}
-
-.stat-card p {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #c084fc;
-}
-
-/* Profile Page */
-.profile-grid {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 30px;
-}
-
-.profile-card-left {
-    text-align: center;
-}
-
-.profile-avatar {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    margin-bottom: 15px;
-    border: 2px solid #c084fc;
-}
-
-.nickname-badge {
-    display: inline-block;
-    margin-top: 10px;
-    background: rgba(192, 132, 252, 0.15);
-    color: #c084fc;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-}
-
-.info-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.divider {
-    border: 0;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 20px 0;
-}
-
-/* Timeline */
-.timeline {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto 50px;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 20px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: rgba(192, 132, 252, 0.4);
-}
-
-.timeline-item {
-    position: relative;
-    padding-left: 60px;
-    margin-bottom: 30px;
-}
-
-.timeline-dot {
-    position: absolute;
-    left: 11px;
-    top: 5px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #c084fc;
-    box-shadow: 0 0 12px #c084fc;
-}
-
-.year-badge {
-    font-size: 0.85rem;
-    color: #c084fc;
-    font-weight: bold;
-}
-
-.edu-highlights {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-}
-
-.tag {
-    background: rgba(192, 132, 252, 0.1);
-    border: 1px solid rgba(192, 132, 252, 0.2);
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-}
-
-/* Table Section */
-.table-section {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.section-title {
-    margin-bottom: 15px;
-}
-
-.table-wrapper {
-    overflow-x: auto;
-}
-
-.custom-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: rgba(15, 23, 42, 0.75);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.custom-table th, .custom-table td {
-    padding: 15px 20px;
-    text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.custom-table th {
-    background: rgba(192, 132, 252, 0.15);
-    color: #c084fc;
-}
-
-.status-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-}
-
-.status-badge.completed {
-    background: rgba(34, 197, 94, 0.2);
-    color: #4ade80;
-}
-
-.status-badge.active {
-    background: rgba(192, 132, 252, 0.25);
-    color: #c084fc;
-}
-
-/* Hobby Section */
-.hobby-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-}
-
-.hobby-card {
-    text-align: center;
-}
-
-.hobby-icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.hobby-card h4 {
-    color: #c084fc;
-    margin-bottom: 10px;
-}
-
-.feature-hobby {
-    border-color: rgba(239, 68, 68, 0.5);
-}
-
-.feature-hobby:hover {
-    border-color: #ef4444;
-}
-
-/* Contact Section */
-.contact-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 40px;
-}
-
-.contact-card {
-    text-align: center;
-}
-
-.contact-icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
-}
-
-.cta-box {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 40px;
-}
-
-.cta-box h3 {
-    margin-bottom: 10px;
-}
-
-.cta-box p {
-    color: #94a3b8;
-    margin-bottom: 20px;
-}
-
-/* Footer Design */
-footer {
-    background: rgba(5, 8, 15, 0.95);
-    border-top: 1px solid rgba(192, 132, 252, 0.2);
-    padding: 40px 0 20px;
-    margin-top: auto;
-}
-
-.footer-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.footer-info p {
-    color: #94a3b8;
-    font-size: 0.9rem;
-}
-
-.footer-links {
-    display: flex;
-    list-style: none;
-    gap: 15px;
-}
-
-.footer-links a {
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: #c084fc;
-}
-
-.footer-bottom {
-    text-align: center;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    color: #64748b;
-    font-size: 0.85rem;
-}
-
-/* Responsive Support */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .hero-container {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-
-    .hero-buttons {
-        justify-content: center;
-    }
-
-    .hero-img, .image-bg-glow {
-        width: 230px;
-        height: 230px;
-    }
-
-    .grid-3, .hobby-grid, .contact-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .profile-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .info-list {
-        grid-template-columns: 1fr;
-    }
-
-    .footer-container {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-}
-
-/* DOM Interaction Effects (ข้อความสั่นกระชับ และปุ่มโดนไหม้) */
-.godzilla-shake {
-    animation: gzShake 0.12s infinite alternate !important;
-    color: #c084fc !important;
-    text-shadow: 0 0 8px #a855f7 !important;
-    transition: all 0.1s ease !important;
-}
-
-.godzilla-burned {
-    background: linear-gradient(135deg, #ff4500, #7e22ce) !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 20px #ff4500, 0 0 30px #a855f7 !important;
-    border-color: #ffaa00 !important;
-    transform: scale(1.04) !important;
-    transition: all 0.15s ease !important;
-}
-
-@keyframes gzShake {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    100% { transform: translate(-1px, -1px) rotate(0.5deg); }
-}
-
-/* ==========================================
-   1. GODZILLA CONTROLS (มุมขวาล่าง)
-   ========================================== */
-.godzilla-controls {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10000;
-}
-
-.control-btn {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(192, 132, 252, 0.4);
-    color: #e2e8f0;
-    padding: 10px 18px;
-    border-radius: 20px;
-    backdrop-filter: blur(8px);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    transition: all 0.3s ease;
-}
-
-.control-btn:hover {
-    border-color: #c084fc;
-    box-shadow: 0 0 15px rgba(192, 132, 252, 0.5);
-    transform: translateY(-2px);
-}
-
-.control-btn.active {
-    background: linear-gradient(135deg, #dc2626, #ff4500) !important;
-    border-color: #ffedd5 !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 25px rgba(255, 69, 0, 0.9), inset 0 0 10px #ffffff !important;
-    animation: btnAlert 0.6s infinite alternate ease-in-out;
-}
-
-/* ==========================================
-   2. HEAT VENT MODE (โหมดระบายความร้อนฉบับยกระดับ)
-   ========================================== */
-
-/* เพิ่มความคอนทราสต์และความสว่างโทนร้อนให้หน้าจอ */
-body.heat-vent-active {
-    filter: brightness(0.9) contrast(1.25) saturate(1.4);
-    transition: filter 0.5s ease;
-}
-
-/* เอฟเฟกต์ไอความร้อน (Heat Haze) เต้นปกคลุมทั้งหน้าจอ */
-body.heat-vent-active::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.35) 100%);
-    pointer-events: none;
-    z-index: 9998;
-    animation: heatHazePulse 1.2s infinite alternate ease-in-out;
-}
-
-/* ปรับสีขอบและการเรืองแสงของการ์ด Navbar และรูปภาพ */
-body.heat-vent-active .card,
-body.heat-vent-active .navbar,
-body.heat-vent-active .hero-img {
-    border-color: #f97316 !important;
-    animation: heatVentGlow 0.8s infinite alternate ease-in-out !important;
-}
-
-/* ปรับสีส่วน Timeline เป็นเพลิงส้มสว่าง */
-body.heat-vent-active .timeline::before,
-body.heat-vent-active .timeline-dot {
-    background: #ff4500 !important;
-    box-shadow: 0 0 20px #ff4500, 0 0 35px #dc2626 !important;
-}
-
-/* เปลี่ยนตัวอักษรเน้นย้ำ (Highlight) เป็นสีลาวาเดือด */
-body.heat-vent-active .highlight {
-    background: linear-gradient(45deg, #ff4500, #f97316, #ef4444) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    text-shadow: 0 0 15px rgba(255, 69, 0, 0.6);
-}
-
-/* --- Keyframe Animations --- */
-
-/* ไอความร้อนขยายสลับจังหวะ */
-@keyframes heatHazePulse {
-    0% { opacity: 0.4; transform: scale(1); }
-    100% { opacity: 0.85; transform: scale(1.01); }
-}
-
-/* แสงวาบร้อนแรงของกรอบการ์ด */
-@keyframes heatVentGlow {
-    0% {
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(249, 115, 22, 0.3);
-        border-color: #ef4444;
-    }
-    100% {
-        box-shadow: 0 0 35px rgba(249, 115, 22, 0.9), inset 0 0 25px rgba(239, 68, 68, 0.6);
-        border-color: #ffedd5;
-    }
-}
-
-/* ปุ่ม Heat Vent เด้งกะพริบสไตล์เตือนภัย */
-@keyframes btnAlert {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
-}egoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Canvas Layer สำหรับเอฟเฟกต์เลเซอร์และเปลวเพลิง (อยู่ด้านหลังสุด ไม่บังข้อความ) */
@@ -1394,4 +696,86 @@ body.heat-vent-active .highlight {
 @keyframes btnAlert {
     0% { transform: scale(1); }
     100% { transform: scale(1.05); }
+}
+
+/* ==========================================
+   3. INTRO OVERLAY SYSTEM (ฉากเปิด)
+   ========================================== */
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #050811;
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.intro-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.intro-content {
+    max-width: 500px;
+    width: 90%;
+    padding: 20px;
+}
+
+.intro-warning {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    animation: warningBlink 0.6s infinite alternate;
+}
+
+.intro-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #ffffff;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px rgba(192, 132, 252, 0.6);
+}
+
+.intro-title span {
+    color: #c084fc;
+}
+
+.intro-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(192, 132, 252, 0.3);
+    box-shadow: 0 0 15px rgba(192, 132, 252, 0.2);
+    margin-bottom: 15px;
+}
+
+.intro-progress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7, #c084fc, #38bdf8);
+    box-shadow: 0 0 12px #c084fc;
+    transition: width 0.05s linear;
+}
+
+.intro-subtext {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    letter-spacing: 1px;
+}
+
+@keyframes warningBlink {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
 }
