@@ -7,28 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- แถบเตือนภัยฉุกเฉิน (Emergency Siren Banner) -->
-<div class="emergency-banner">
-    <div class="siren-light"></div>
-    <div class="banner-text">
-        <span>🚨 EMERGENCY LEVEL 5: UNIDENTIFIED GIANT LIFEFORM APPROACHING // 特異生物คลื่นความร้อนสูงกำลังเคลื่อนที่เข้าใกล้ 🚨</span>
+    <!-- ปุ่มสลับโหมดระบายความร้อน Godzilla (Heat Vent Mode) มุมขวาล่าง -->
+    <div class="godzilla-controls">
+        <button id="heatVentBtn" class="control-btn" title="Godzilla Heat Vent Mode">
+            <span class="icon">☢️</span>
+            <span class="label">HEAT VENT</span>
+        </button>
     </div>
-</div>
 
-<!-- ปุ่มควบคุมมุมขวาล่าง (Sound Toggle & Heat Vent Mode) -->
-<div class="godzilla-controls">
-    <!-- ปุ่มสลับโหมดระบายความร้อน (Heat Vent Mode) -->
-    <button id="heatVentBtn" class="control-btn" title="Godzilla Heat Vent Mode">
-        <span class="icon">☢️</span>
-        <span class="label">HEAT VENT</span>
-    </button>
-    
-    <!-- ปุ่มเปิด/ปิด เสียง SFX -->
-    <button id="soundToggleBtn" class="control-btn" title="Toggle SFX Sound">
-        <span class="icon" id="soundIcon">🔇</span>
-        <span class="label" id="soundLabel">SFX OFF</span>
-    </button>
-</div>
     <!-- Canvas สำหรับวาดแสงเลเซอร์และเอฟเฟกต์เผาหน้าจอ -->
     <canvas id="laserCanvas"></canvas>
 
