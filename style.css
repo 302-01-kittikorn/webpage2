@@ -51,6 +51,7 @@ h1, h2, h3, h4 {
     background: linear-gradient(45deg, #c084fc, #a855f7, #38bdf8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    transition: all 0.4s ease;
 }
 
 .badge {
@@ -214,7 +215,7 @@ h1, h2, h3, h4 {
     box-shadow: 0 0 25px rgba(192, 132, 252, 0.5);
     position: relative;
     z-index: 2;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .hero-img:hover {
@@ -620,38 +621,79 @@ footer {
 }
 
 .control-btn.active {
-    background: linear-gradient(135deg, #7e22ce, #dc2626);
-    border-color: #f87171;
-    color: #ffffff;
-    box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+    background: linear-gradient(135deg, #dc2626, #ff4500) !important;
+    border-color: #ffedd5 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 69, 0, 0.9), inset 0 0 10px #ffffff !important;
+    animation: btnAlert 0.6s infinite alternate ease-in-out;
 }
 
 /* ==========================================
-   2. HEAT VENT MODE (โหมดระบายความร้อน)
+   2. HEAT VENT MODE (โหมดระบายความร้อนฉบับยกระดับ)
    ========================================== */
+
+/* เพิ่มความคอนทราสต์และความสว่างโทนร้อนให้หน้าจอ */
 body.heat-vent-active {
-    filter: brightness(0.85) contrast(1.1);
+    filter: brightness(0.9) contrast(1.25) saturate(1.4);
+    transition: filter 0.5s ease;
 }
 
+/* เอฟเฟกต์ไอความร้อน (Heat Haze) เต้นปกคลุมทั้งหน้าจอ */
+body.heat-vent-active::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.35) 100%);
+    pointer-events: none;
+    z-index: 9998;
+    animation: heatHazePulse 1.2s infinite alternate ease-in-out;
+}
+
+/* ปรับสีขอบและการเรืองแสงของการ์ด Navbar และรูปภาพ */
 body.heat-vent-active .card,
-body.heat-vent-active .navbar {
-    border-color: #ef4444 !important;
-    animation: heatVentGlow 1.5s infinite alternate ease-in-out !important;
+body.heat-vent-active .navbar,
+body.heat-vent-active .hero-img {
+    border-color: #f97316 !important;
+    animation: heatVentGlow 0.8s infinite alternate ease-in-out !important;
 }
 
+/* ปรับสีส่วน Timeline เป็นเพลิงส้มสว่าง */
 body.heat-vent-active .timeline::before,
 body.heat-vent-active .timeline-dot {
-    background: #ef4444 !important;
-    box-shadow: 0 0 15px #ef4444 !important;
+    background: #ff4500 !important;
+    box-shadow: 0 0 20px #ff4500, 0 0 35px #dc2626 !important;
 }
 
+/* เปลี่ยนตัวอักษรเน้นย้ำ (Highlight) เป็นสีลาวาเดือด */
+body.heat-vent-active .highlight {
+    background: linear-gradient(45deg, #ff4500, #f97316, #ef4444) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0 0 15px rgba(255, 69, 0, 0.6);
+}
+
+/* --- Keyframe Animations --- */
+
+/* ไอความร้อนขยายสลับจังหวะ */
+@keyframes heatHazePulse {
+    0% { opacity: 0.4; transform: scale(1); }
+    100% { opacity: 0.85; transform: scale(1.01); }
+}
+
+/* แสงวาบร้อนแรงของกรอบการ์ด */
 @keyframes heatVentGlow {
     0% {
-        box-shadow: 0 0 15px rgba(168, 85, 247, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2);
-        border-color: rgba(168, 85, 247, 0.6);
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(249, 115, 22, 0.3);
+        border-color: #ef4444;
     }
     100% {
-        box-shadow: 0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4);
-        border-color: rgba(239, 68, 68, 0.9);
+        box-shadow: 0 0 35px rgba(249, 115, 22, 0.9), inset 0 0 25px rgba(239, 68, 68, 0.6);
+        border-color: #ffedd5;
     }
+}
+
+/* ปุ่ม Heat Vent เด้งกะพริบสไตล์เตือนภัย */
+@keyframes btnAlert {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
 }
