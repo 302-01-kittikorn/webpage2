@@ -629,16 +629,16 @@ footer {
 }
 
 /* ==========================================
-   2. HEAT VENT MODE (โหมดระบายความร้อนฉบับยกระดับ)
+   2. HEAT VENT MODE (โหมดระบายความร้อน + Meltdown Effect)
    ========================================== */
 
-/* เพิ่มความคอนทราสต์และความสว่างโทนร้อนให้หน้าจอ */
+/* ปรับโทนภาพรวมของหน้าจอ */
 body.heat-vent-active {
     filter: brightness(0.9) contrast(1.25) saturate(1.4);
     transition: filter 0.5s ease;
 }
 
-/* เอฟเฟกต์ไอความร้อน (Heat Haze) เต้นปกคลุมทั้งหน้าจอ */
+/* ไอความร้อนคลุมหน้าจอ */
 body.heat-vent-active::before {
     content: '';
     position: fixed;
@@ -649,22 +649,34 @@ body.heat-vent-active::before {
     animation: heatHazePulse 1.2s infinite alternate ease-in-out;
 }
 
-/* ปรับสีขอบและการเรืองแสงของการ์ด Navbar และรูปภาพ */
+/* MELTDOWN EFFECT: การ์ด, ปุ่ม, แบดจ์ บิดเบี้ยวเยิ้มเหมือนโดนความร้อนหลอมละลาย */
 body.heat-vent-active .card,
-body.heat-vent-active .navbar,
+body.heat-vent-active .btn,
+body.heat-vent-active .badge,
+body.heat-vent-active .nav-links a,
+body.heat-vent-active .profile-avatar,
 body.heat-vent-active .hero-img {
+    border-radius: 4px 28px 8px 35px / 25px 6px 30px 8px !important;
     border-color: #f97316 !important;
-    animation: heatVentGlow 0.8s infinite alternate ease-in-out !important;
+    animation: heatVentGlow 0.8s infinite alternate ease-in-out, meltdownWobble 2.5s infinite alternate ease-in-out !important;
+    transition: border-radius 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* ปรับสีส่วน Timeline เป็นเพลิงส้มสว่าง */
+/* ปุ่มกดสไตล์โลหะละลายเดือด */
+body.heat-vent-active .btn-primary {
+    background: linear-gradient(160deg, #ff4500, #b91c1c, #78350f) !important;
+    box-shadow: 0 8px 25px rgba(255, 69, 0, 0.7), inset 0 -4px 10px rgba(255, 230, 0, 0.5) !important;
+    color: #fff !important;
+}
+
+/* ไทม์ไลน์เดือดเรืองแสง */
 body.heat-vent-active .timeline::before,
 body.heat-vent-active .timeline-dot {
     background: #ff4500 !important;
     box-shadow: 0 0 20px #ff4500, 0 0 35px #dc2626 !important;
 }
 
-/* เปลี่ยนตัวอักษรเน้นย้ำ (Highlight) เป็นสีลาวาเดือด */
+/* ตัวหนังสือเน้นย้ำสลับเป็นสีลาวาเดือด */
 body.heat-vent-active .highlight {
     background: linear-gradient(45deg, #ff4500, #f97316, #ef4444) !important;
     -webkit-background-clip: text !important;
@@ -673,6 +685,19 @@ body.heat-vent-active .highlight {
 }
 
 /* --- Keyframe Animations --- */
+
+/* อนิเมชันจำลองรูปทรงเบี้ยวขยับช้าๆ เหมือนหยดลาวาเยิ้ม */
+@keyframes meltdownWobble {
+    0% {
+        border-radius: 4px 28px 8px 35px / 25px 6px 30px 8px;
+    }
+    50% {
+        border-radius: 30px 6px 22px 10px / 8px 32px 12px 28px;
+    }
+    100% {
+        border-radius: 12px 35px 5px 25px / 28px 10px 35px 6px;
+    }
+}
 
 /* ไอความร้อนขยายสลับจังหวะ */
 @keyframes heatHazePulse {
