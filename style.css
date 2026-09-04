@@ -585,3 +585,117 @@ footer {
     0% { transform: translate(1px, 1px) rotate(0deg); }
     100% { transform: translate(-1px, -1px) rotate(0.5deg); }
 }
+/* ==========================================
+   1. EMERGENCY SIREN BANNER
+   ========================================== */
+.emergency-banner {
+    width: 100%;
+    background: linear-gradient(90deg, #7f1d1d, #991b1b, #7f1d1d);
+    border-bottom: 2px solid #ef4444;
+    color: #fef2f2;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    padding: 6px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1001;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+}
+
+.siren-light {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 0, 0, 0.25);
+    animation: sirenPulse 0.8s infinite alternate ease-in-out;
+    pointer-events: none;
+}
+
+.banner-text {
+    white-space: nowrap;
+    display: inline-block;
+    animation: marquee 18s linear infinite;
+}
+
+@keyframes sirenPulse {
+    0% { opacity: 0.2; }
+    100% { opacity: 0.8; }
+}
+
+@keyframes marquee {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+}
+
+/* ==========================================
+   2. GODZILLA CONTROLS (มุมขวาล่าง)
+   ========================================== */
+.godzilla-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+}
+
+.control-btn {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    color: #e2e8f0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    border-color: #c084fc;
+    box-shadow: 0 0 15px rgba(192, 132, 252, 0.5);
+    transform: translateY(-2px);
+}
+
+.control-btn.active {
+    background: linear-gradient(135deg, #7e22ce, #dc2626);
+    border-color: #f87171;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+}
+
+/* ==========================================
+   3. HEAT VENT MODE (โหมดระบายความร้อน)
+   ========================================== */
+body.heat-vent-active {
+    filter: brightness(0.85) contrast(1.1);
+}
+
+body.heat-vent-active .card,
+body.heat-vent-active .navbar {
+    border-color: #ef4444 !important;
+    animation: heatVentGlow 1.5s infinite alternate ease-in-out !important;
+}
+
+body.heat-vent-active .timeline::before,
+body.heat-vent-active .timeline-dot {
+    background: #ef4444 !important;
+    box-shadow: 0 0 15px #ef4444 !important;
+}
+
+@keyframes heatVentGlow {
+    0% {
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2);
+        border-color: rgba(168, 85, 247, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4);
+        border-color: rgba(239, 68, 68, 0.9);
+    }
+}
