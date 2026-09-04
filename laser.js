@@ -1,167 +1,373 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('laserCanvas');
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode
+window.addEventListener('load', function() {
+    let canvas = document.getElementById('laserCanvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'laserCanvas';
+        document.body.appendChild(canvas);
+    }
+
     const ctx = canvas.getContext('2d');
-
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    });
-
-    const heatVentBtn = document.getElementById('heatVentBtn');
-    const btnRoar = document.getElementById('btnRoar');
-    const btnBlackout = document.getElementById('btnBlackout');
-
-    let isHeatVentActive = false;
+    let width, height;
+    let mouse = { x: -100, y: -100, isDown: false, active: false };
+    let burnMarks = [];
     let particles = [];
-    let lasers = [];
+    let fireEmbers = [];
 
-    // --- Event Listeners สำหรับปุ่มควบคุม ---
+    let state = 'ENTER';
+    let introProgress = 0; 
+    let godzillaX = -380; 
+    let godzillaTargetX = 110; 
+    let chargeEnergy = 0;
 
-    // 1. ปุ่ม Heat Vent (เปิด/ปิด โหมดเลเซอร์สแกนและเผาหน้าจอ)
+    // ----------------------------------------------------
+    // HEAT VENT TOGGLE
+    // ----------------------------------------------------
+    const heatVentBtn = document.getElementById('heatVentBtn');
     if (heatVentBtn) {
         heatVentBtn.addEventListener('click', () => {
-            isHeatVentActive = !isHeatVentActive;
-            heatVentBtn.classList.toggle('active', isHeatVentActive);
-            document.body.classList.toggle('heat-vent-active', isHeatVentActive);
-
-            if (isHeatVentActive) {
-                // สร้างลำแสงเลเซอร์ยิงกราดทันทีเมื่อเปิดใช้งาน
-                createLaserBeam();
-            }
+            document.body.classList.toggle('heat-vent-active');
+            heatVentBtn.classList.toggle('active');
         });
     }
 
-    // 2. ปุ่ม Roar Shockwave (สั่นหน้าจอ + ยิงวงคลื่นกระแทก)
-    if (btnRoar) {
-        btnRoar.addEventListener('click', () => {
-            triggerScreenShake(1000);
-            createShockwaveParticles();
-        });
+    // ----------------------------------------------------
+    // SETUP CANVAS & PARTICLES
+    // ----------------------------------------------------
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        initFireEmbers();
     }
 
-    // 3. ปุ่ม Yashiori Operation (โหมดตัดไฟ)
-    if (btnBlackout) {
-        btnBlackout.addEventListener('click', () => {
-            btnBlackout.classList.toggle('active');
-            document.body.classList.toggle('godzilla-burned');
-        });
-    }
-
-    // --- ฟังก์ชันสร้างเอฟเฟกต์ ---
-
-    function createLaserBeam() {
-        lasers.push({
-            x: Math.random() * width,
-            y: 0,
-            targetX: Math.random() * width,
-            targetY: height,
-            width: Math.random() * 6 + 3,
-            alpha: 1,
-            color: '#c084fc'
-        });
-    }
-
-    function triggerScreenShake(duration) {
-        const startTime = Date.now();
-        const interval = setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            if (elapsed > duration) {
-                document.body.style.transform = 'none';
-                clearInterval(interval);
-                return;
-            }
-            const x = (Math.random() - 0.5) * 12;
-            const y = (Math.random() - 0.5) * 12;
-            document.body.style.transform = `translate(${x}px, ${y}px)`;
-        }, 30);
-    }
-
-    function createShockwaveParticles() {
-        const centerX = width / 2;
-        const centerY = height / 2;
-        for (let i = 0; i < 60; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 8 + 4;
-            particles.push({
-                x: centerX,
-                y: centerY,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                size: Math.random() * 4 + 2,
-                color: '#a855f7',
-                alpha: 1
+    function initFireEmbers() {
+        fireEmbers = [];
+        const count = Math.floor(width / 15);
+        for (let i = 0; i < count; i++) {
+            fireEmbers.push({
+                x: Math.random() * width,
+                y: height + Math.random() * 50,
+                radius: Math.random() * 2.5 + 1,
+                speedY: Math.random() * 1.5 + 0.6,
+                speedX: (Math.random() - 0.5) * 0.8,
+                color: Math.random() > 0.35 ? '#ff4500' : (Math.random() > 0.5 ? '#ff8c00' : '#c084fc'),
+                alpha: Math.random() * 0.8 + 0.2
             });
         }
     }
 
-    // --- Animation Loop ---
+    window.addEventListener('resize', resize);
+    resize();
 
-    function animate() {
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.active = true;
+    });
+
+    window.addEventListener('mousedown', (e) => {
+        mouse.isDown = true;
+        if (state === 'READY') {
+            addBurnMark(e.clientX, e.clientY);
+        }
+    });
+
+    window.addEventListener('mouseup', () => { mouse.isDown = false; });
+
+    function addBurnMark(x, y) {
+        burnMarks.push({
+            x: x, y: y,
+            radius: Math.random() * 12 + 16,
+            alpha: 1, life: 200
+        });
+    }
+
+    function addParticles(x, y, count, isIntro = false) {
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * (isIntro ? 10 : 5) + 2;
+            particles.push({
+                x: x, y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                radius: Math.random() * (isIntro ? 5 : 3) + 1,
+                color: Math.random() > 0.3 ? '#c084fc' : (Math.random() > 0.5 ? '#e9d5ff' : '#ff4500'),
+                alpha: 1, life: isIntro ? 45 : 25
+            });
+        }
+    }
+
+    function interactWithDOM(laserX, laserY) {
+        const elements = document.elementsFromPoint(laserX, laserY);
+        elements.forEach(el => {
+            if (el === canvas || el === document.body || el === document.documentElement) return;
+            const tag = el.tagName.toLowerCase();
+            if (tag === 'button' || el.classList.contains('btn') || tag === 'a') {
+                el.classList.add('godzilla-burned');
+                setTimeout(() => el.classList.remove('godzilla-burned'), 400);
+            } else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span'].includes(tag)) {
+                el.classList.add('godzilla-shake');
+                setTimeout(() => el.classList.remove('godzilla-shake'), 300);
+            }
+        });
+    }
+
+    // Godzilla Model
+    function drawDetailedGodzilla(x, y, scale = 1, isCharging = false, chargeRatio = 0) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+
+        const spines = [
+            { path: [[-120, 60], [-170, 20], [-130, -10], [-100, 30]], color: '#a855f7' },
+            { path: [[-95, 30], [-145, -20], [-105, -45], [-75, 0]], color: '#c084fc' },
+            { path: [[-70, 0], [-120, -60], [-80, -75], [-50, -25]], color: '#e9d5ff' },
+            { path: [[-45, -25], [-85, -85], [-55, -95], [-30, -45]], color: '#ffffff' },
+            { path: [[-140, 80], [-185, 50], [-150, 25], [-125, 55]], color: '#7e22ce' },
+            { path: [[-110, 50], [-155, 10], [-120, -15], [-95, 20]], color: '#a855f7' }
+        ];
+
+        spines.forEach((spine, idx) => {
+            ctx.beginPath();
+            ctx.moveTo(spine.path[0][0], spine.path[0][1]);
+            ctx.lineTo(spine.path[1][0], spine.path[1][1]);
+            ctx.lineTo(spine.path[2][0], spine.path[2][1]);
+            ctx.lineTo(spine.path[3][0], spine.path[3][1]);
+            ctx.closePath();
+
+            ctx.shadowBlur = isCharging ? 20 + idx * 5 : 5;
+            ctx.shadowColor = '#c084fc';
+            ctx.fillStyle = isCharging ? (Math.random() > 0.2 ? spine.color : '#ffffff') : '#1e1b4b';
+            ctx.fill();
+        });
+
+        ctx.shadowBlur = isCharging ? 25 : 8;
+        ctx.shadowColor = '#c084fc';
+        ctx.fillStyle = '#090a10';
+
+        ctx.beginPath();
+        ctx.moveTo(-160, 200);
+        ctx.quadraticCurveTo(-140, 100, -100, 40);
+        ctx.lineTo(-70, -15); ctx.lineTo(-50, -40); ctx.lineTo(-20, -55);
+        ctx.lineTo(15, -45); ctx.lineTo(40, -35); ctx.lineTo(75, -20);
+        ctx.lineTo(80, -10); ctx.lineTo(70, -5); ctx.lineTo(65, -12);
+        ctx.lineTo(55, -3); ctx.lineTo(50, -10); ctx.lineTo(40, 0); ctx.lineTo(35, -8);
+        ctx.lineTo(20, 5); ctx.lineTo(10, 15); ctx.lineTo(25, 20); ctx.lineTo(30, 12);
+        ctx.lineTo(42, 22); ctx.lineTo(48, 14); ctx.lineTo(60, 25); ctx.lineTo(68, 15);
+        ctx.lineTo(78, 28); ctx.lineTo(50, 45); ctx.lineTo(20, 60); ctx.lineTo(-20, 95);
+        ctx.quadraticCurveTo(-60, 140, -90, 200);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(20, -30, 5, 3, Math.PI / 6, 0, Math.PI * 2);
+        ctx.fillStyle = isCharging ? '#ffffff' : '#c084fc';
+        ctx.shadowBlur = isCharging ? 15 : 5;
+        ctx.shadowColor = '#ffffff';
+        ctx.fill();
+
+        if (isCharging) {
+            ctx.beginPath();
+            ctx.arc(35, 5, 16 + Math.random() * 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#c084fc';
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
+    function render() {
         ctx.clearRect(0, 0, width, height);
 
-        // วาดเอฟเฟกต์อนุภาคความร้อนลอยขึ้นเมื่อเปิด Heat Vent
-        if (isHeatVentActive) {
-            if (Math.random() < 0.4) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: height + 10,
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: -Math.random() * 4 - 2,
-                    size: Math.random() * 3 + 1,
-                    color: Math.random() > 0.5 ? '#ff4500' : '#c084fc',
-                    alpha: 1
-                });
-            }
+        // 1. เปลวเพลิงเรืองแสงด้านล่าง
+        const fireGrad = ctx.createLinearGradient(0, height, 0, height - 160);
+        fireGrad.addColorStop(0, 'rgba(255, 69, 0, 0.4)');
+        fireGrad.addColorStop(0.5, 'rgba(255, 120, 0, 0.15)');
+        fireGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = fireGrad;
+        ctx.fillRect(0, height - 180, width, 180);
 
-            if (Math.random() < 0.05) {
-                createLaserBeam();
+        // 2. GODZILLA INTRO ANIMATION
+        if (state !== 'READY') {
+            const headY = height * 0.48;
+
+            if (state === 'ENTER') {
+                godzillaX += (godzillaTargetX - godzillaX) * 0.045;
+                drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
+
+                if (Math.abs(godzillaX - godzillaTargetX) < 2) {
+                    state = 'CHARGE';
+                }
+            } 
+            else if (state === 'CHARGE') {
+                chargeEnergy += 0.022;
+                drawDetailedGodzilla(godzillaX, headY, 1.6 + Math.sin(chargeEnergy * 14) * 0.03, true, chargeEnergy);
+
+                const mouthX = godzillaX + 115;
+                const mouthY = headY + 8;
+                addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
+
+                if (chargeEnergy >= 1) {
+                    state = 'BEAM';
+                    introProgress = 0;
+                }
+            } 
+            else if (state === 'BEAM') {
+                introProgress += 0.018;
+                const mouthX = godzillaX + 115;
+                const mouthY = headY + 8;
+
+                drawDetailedGodzilla(godzillaX, headY, 1.65, true, 1);
+
+                const targetX = width * Math.min(introProgress * 1.25, 1);
+                const targetY = headY + Math.sin(introProgress * Math.PI * 2) * 85;
+
+                const bWidth = 42 + Math.random() * 16;
+                ctx.save();
+                ctx.shadowBlur = 50;
+                ctx.shadowColor = '#c084fc';
+
+                ctx.beginPath();
+                ctx.moveTo(mouthX, mouthY);
+                ctx.lineTo(targetX, targetY);
+                ctx.strokeStyle = 'rgba(192, 132, 252, 0.6)';
+                ctx.lineWidth = bWidth * 2.4;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(mouthX, mouthY);
+                ctx.lineTo(targetX, targetY);
+                ctx.strokeStyle = '#a855f7';
+                ctx.lineWidth = bWidth;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(mouthX, mouthY);
+                ctx.lineTo(targetX, targetY);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = bWidth * 0.35;
+                ctx.stroke();
+                ctx.restore();
+
+                interactWithDOM(targetX, targetY);
+
+                if (Math.random() < 0.75) addBurnMark(targetX, targetY);
+                addParticles(targetX, targetY, 9, true);
+
+                canvas.style.transform = `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)`;
+
+                if (introProgress >= 1) {
+                    state = 'READY';
+                    canvas.style.transform = 'none';
+                }
             }
         }
 
-        // วาดเลเซอร์
-        for (let i = lasers.length - 1; i >= 0; i--) {
-            const l = lasers[i];
+        // 3. Bottom Embers
+        fireEmbers.forEach(e => {
+            ctx.save();
+            ctx.globalAlpha = e.alpha * (0.6 + Math.sin(Date.now() * 0.005 + e.x) * 0.4);
+            ctx.fillStyle = e.color;
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            e.y -= e.speedY;
+            e.x += e.speedX;
+
+            if (e.y < -10) {
+                e.y = height + Math.random() * 20;
+                e.x = Math.random() * width;
+            }
+        });
+
+        // 4. Burn Marks
+        for (let i = burnMarks.length - 1; i >= 0; i--) {
+            const b = burnMarks[i];
             ctx.save();
             ctx.beginPath();
-            ctx.moveTo(l.x, l.y);
-            ctx.lineTo(l.targetX, l.targetY);
-            ctx.strokeStyle = l.color;
-            ctx.lineWidth = l.width;
-            ctx.globalAlpha = l.alpha;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = l.color;
+            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+
+            const grad = ctx.createRadialGradient(b.x, b.y, 1, b.x, b.y, b.radius);
+            grad.addColorStop(0, `rgba(255, 69, 0, ${b.alpha})`);
+            grad.addColorStop(0.4, `rgba(168, 85, 247, ${b.alpha * 0.7})`);
+            grad.addColorStop(1, `rgba(11, 15, 25, 0)`);
+
+            ctx.fillStyle = grad;
+            ctx.fill();
+            ctx.restore();
+
+            b.life--;
+            b.alpha = b.life / 200;
+            if (b.life <= 0) burnMarks.splice(i, 1);
+        }
+
+        // 5. Interactive Mouse Laser
+        if (state === 'READY' && mouse.active) {
+            const startX = width;
+            const startY = 0;
+
+            const isClicking = mouse.isDown;
+            const laserWidth = isClicking ? 20 + Math.random() * 8 : 6 + Math.random() * 2;
+
+            ctx.save();
+            ctx.shadowBlur = isClicking ? 35 : 15;
+            ctx.shadowColor = '#c084fc';
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
+            ctx.lineWidth = laserWidth * 2.2;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = laserWidth;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = laserWidth * 0.3;
             ctx.stroke();
             ctx.restore();
 
-            l.alpha -= 0.02;
-            if (l.alpha <= 0) {
-                lasers.splice(i, 1);
+            interactWithDOM(mouse.x, mouse.y);
+            addParticles(mouse.x, mouse.y, isClicking ? 6 : 2);
+
+            if (isClicking && Math.random() < 0.4) {
+                addBurnMark(mouse.x + (Math.random() * 12 - 6), mouse.y + (Math.random() * 12 - 6));
             }
         }
 
-        // วาดและอัปเดตอนุภาค (Particles)
+        // 6. Sparks Particles
         for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.fillStyle = p.color;
             ctx.globalAlpha = p.alpha;
             ctx.fill();
+            ctx.globalAlpha = 1;
 
-            p.x += p.vx || 0;
-            p.y += p.vy || 0;
-            p.alpha -= 0.015;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life--;
+            p.alpha = p.life / 35;
 
-            if (p.alpha <= 0) {
-                particles.splice(i, 1);
-            }
+            if (p.life <= 0) particles.splice(i, 1);
         }
 
-        requestAnimationFrame(animate);
+        requestAnimationFrame(render);
     }
 
-    animate();
+    render();
 });
