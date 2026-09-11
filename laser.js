@@ -16,6 +16,7 @@ window.addEventListener('load', function() {
 
     let state = 'ENTER';
     let introProgress = 0; 
+    let postIntroProgress = 0; // ตัวนับเวลาการยิงแสงต่อเนื่องบนหน้าเว็บ
     let godzillaX = -380; 
     let godzillaTargetX = 110; 
     let chargeEnergy = 0;
@@ -216,9 +217,8 @@ window.addEventListener('load', function() {
                 godzillaX += (godzillaTargetX - godzillaX) * 0.045;
                 drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
 
-                // อัปเดต Progress Bar ช่วงเดินเข้า (0% - 30%)
                 const enterProgress = Math.min(1, (godzillaX - (-380)) / (godzillaTargetX - (-380)));
-                if (introProgressBar) introProgressBar.style.width = `${enterProgress * 30}%`;
+                if (introProgressBar) introProgressBar.style.width = `${enterProgress * 40}%`;
 
                 if (Math.abs(godzillaX - godzillaTargetX) < 2) {
                     state = 'CHARGE';
@@ -232,23 +232,46 @@ window.addEventListener('load', function() {
                 const mouthY = headY + 8;
                 addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
 
-                // อัปเดต Progress Bar ช่วงชาร์จ พลัง (30% - 60%)
-                if (introProgressBar) introProgressBar.style.width = `${30 + chargeEnergy * 30}%`;
+                if (introProgressBar) introProgressBar.style.width = `${40 + chargeEnergy * 60}%`;
 
                 if (chargeEnergy >= 1) {
                     state = 'BEAM';
                     introProgress = 0;
+                    
+                    // สั่งให้ฉากเปิด (Intro Overlay) เริ่มจางหายออกทันทีตั้งแต่เริ่มปล่อยแสง
+                    if (introOverlay) {
+                        introOverlay.classList.add('fade-out');
+                    }
                 }
             } 
-            else if (state === 'BEAM') {
-                introProgress += 0.018;
+            else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
                 const mouthX = godzillaX + 115;
                 const mouthY = headY + 8;
 
                 drawDetailedGodzilla(godzillaX, headY, 1.65, true, 1);
 
-                const targetX = width * Math.min(introProgress * 1.25, 1);
-                const targetY = headY + Math.sin(introProgress * Math.PI * 2) * 85;
+                let targetX, targetY;
+
+                if (state === 'BEAM') {
+                    introProgress += 0.018;
+                    targetX = width * Math.min(introProgress * 1.25, 1);
+                    targetY = headY + Math.sin(introProgress * Math.PI * 2) * 85;
+
+                    if (introProgress >= 1) {
+                        state = 'POST_INTRO_BEAM';
+                        postIntroProgress = 0;
+                    }
+                } else {
+                    // POST_INTRO_BEAM: ฉากเปิดหายไปแล้ว แต่งานยิงแสงกวาดกว้างยังคงดำเนินต่อบนหน้าเว็บหลัก
+                    postIntroProgress += 0.015;
+                    targetX = width * (1 - (postIntroProgress * 0.3));
+                    targetY = headY + Math.sin((1 + postIntroProgress) * Math.PI * 2) * 120;
+
+                    if (postIntroProgress >= 1) {
+                        state = 'READY';
+                        canvas.style.transform = 'none';
+                    }
+                }
 
                 const bWidth = 42 + Math.random() * 16;
                 ctx.save();
@@ -283,19 +306,6 @@ window.addEventListener('load', function() {
                 addParticles(targetX, targetY, 9, true);
 
                 canvas.style.transform = `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)`;
-
-                // อัปเดต Progress Bar ช่วงยิงแสง (60% - 100%)
-                if (introProgressBar) introProgressBar.style.width = `${60 + introProgress * 40}%`;
-
-                if (introProgress >= 1) {
-                    state = 'READY';
-                    canvas.style.transform = 'none';
-
-                    // ซ่อน Intro Overlay เมื่อแอนิเมชันจบ
-                    if (introOverlay) {
-                        introOverlay.classList.add('fade-out');
-                    }
-                }
             }
         }
 
