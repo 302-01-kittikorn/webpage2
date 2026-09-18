@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', function() {
     let particles = [];
     let fireEmbers = [];
 
-    let state = 'ENTER'; // เริ่มทำงานทันที ไม่ต้องรอปุ่ม
+    let state = 'ENTER'; // เริ่มทำงานแอนิเมชันทันที ไม่ต้องรอปุ่ม
     let introProgress = 0; 
     let postIntroProgress = 0; 
     let godzillaX = -380; 
@@ -33,19 +33,18 @@ window.addEventListener('DOMContentLoaded', function() {
         introSound.currentTime = 0;
         introSound.volume = 1.0;
 
-        // พยายามเล่นเสียงทันที
+        // พยายามสั่งเล่นเสียงทันที
         const playPromise = introSound.play();
 
         if (playPromise !== undefined) {
             playPromise.catch(() => {
-                // หากถูกเบราว์เซอร์บล็อก ให้เล่นแบบ Mute ไว้ก่อน แล้วเปิดเสียงทันทีที่มี Interaction ใดๆ
+                // หากเบราว์เซอร์บล็อก ให้เล่นแบบปิดเสียงไว้ก่อน แล้วปลดล็อกเสียงดัง 100% ทันทีเมื่อผู้ใช้ขยับเมาส์หรือแตะหน้าจอ
                 introSound.muted = true;
                 introSound.play();
 
                 const unmuteAudio = () => {
                     introSound.muted = false;
                     introSound.volume = 1.0;
-                    // ลบ Event Listeners ออกทันทีที่ปลดล็อกเสียงสำเร็จ
                     window.removeEventListener('mousemove', unmuteAudio);
                     window.removeEventListener('touchstart', unmuteAudio);
                     window.removeEventListener('mousedown', unmuteAudio);
