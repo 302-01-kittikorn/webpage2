@@ -1,4 +1,4 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Trigger Beam via Button)
+// Shin Godzilla Intro - Fully Automatic Launch (No Enter Key Required)
 window.addEventListener('DOMContentLoaded', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out) เมื่อจบฉาก
+    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out) เมื่อยิงลำแสง
     function fadeAndStopAudio() {
         if (!introSound) return;
         
@@ -75,9 +75,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 
-    // ----------------------------------------------------
-    // TRIGGER BEAM & END INTRO VIA BUTTON CLICK
-    // ----------------------------------------------------
+    // ฟังก์ชันเริ่มยิงลำแสงอัตโนมัติและซ่อน Intro
     function triggerBeamStart() {
         if (state === 'ENTER' || state === 'CHARGE') {
             state = 'BEAM';
@@ -94,12 +92,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
             fadeAndStopAudio();
         }
-    }
-
-    // สั่งงานเมื่อคลิกปุ่มบนหน้าจอ (ระบุ ID ปุ่มของคุณที่นี่ เช่น 'startBeamBtn' หรือ 'skipIntroBtn')
-    const startBeamBtn = document.getElementById('startBeamBtn') || document.getElementById('skipIntroBtn');
-    if (startBeamBtn) {
-        startBeamBtn.addEventListener('click', triggerBeamStart);
     }
 
     // ----------------------------------------------------
@@ -309,8 +301,13 @@ window.addEventListener('DOMContentLoaded', function() {
                 const mouthY = headY + 8;
                 addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
 
-                // แสดง Progress Bar เต็มรอไว้ และชาร์จพลังค้างวนไปเรื่อยๆ จนกว่าจะกดปุ่ม
-                if (introProgressBar) introProgressBar.style.width = `95%`;
+                const chargeProgress = 40 + Math.min(60, chargeEnergy * 40);
+                if (introProgressBar) introProgressBar.style.width = `${chargeProgress}%`;
+
+                // เมื่อชาร์จเต็มที่ ( chargeEnergy >= 1.2 ) ให้ยิงลำแสงอัตโนมัติทันที
+                if (chargeEnergy >= 1.2) {
+                    triggerBeamStart();
+                }
             } 
             else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
                 const mouthX = godzillaX + 115;
