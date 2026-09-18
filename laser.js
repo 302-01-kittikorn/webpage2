@@ -1,5 +1,5 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Fully Automatic)
-window.addEventListener('load', function() {
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Fully Automatic - Instant Audio)
+window.addEventListener('DOMContentLoaded', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
         canvas = document.createElement('canvas');
@@ -27,24 +27,19 @@ window.addEventListener('load', function() {
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
-    // AUTO START AUDIO & FADE CONTROL (เปิดเสียงเฉพาะฉากเปิด)
+    // AUTO START AUDIO IMMEDIATELY & FADE CONTROL
     // ----------------------------------------------------
     if (introSound) {
         introSound.currentTime = 0;
         introSound.volume = 1.0; // ความดังเต็มที่ช่วงฉากเปิด
-        introSound.play().catch(err => {
-            console.log("Autoplay blocked by browser. Playing on first interaction.", err);
-            // ป้องกันกรณีเบราว์เซอร์บล็อก Autoplay ให้เล่นเมื่อขยับหรือแตะหน้าจอครั้งแรก
-            const handleUserInteraction = () => {
-                introSound.play();
-                window.removeEventListener('click', handleUserInteraction);
-                window.removeEventListener('touchstart', handleUserInteraction);
-                window.removeEventListener('mousemove', handleUserInteraction);
-            };
-            window.addEventListener('click', handleUserInteraction);
-            window.addEventListener('touchstart', handleUserInteraction);
-            window.addEventListener('mousemove', handleUserInteraction);
-        });
+        
+        // บังคับเล่นเสียงทันทีโดยไม่รอการกดปุ่มใดๆ
+        const promise = introSound.play();
+        if (promise !== undefined) {
+            promise.catch(err => {
+                console.warn("Browser autoplay restrictions applied. Attempting muted/forced play fallback.", err);
+            });
+        }
     }
 
     // ฟังก์ชันค่อยๆ ลดเสียงจนหยุดเล่นสนิท
@@ -283,7 +278,7 @@ window.addEventListener('load', function() {
                         }, 800);
                     }
 
-                    // ปิดเสียงเมื่อฉากเปิดจบ
+                    // ค่อยๆ ปิดเสียงเมื่อฉากเปิดเริ่มยิงเลเซอร์และเข้าสู่การจบฉาก
                     fadeAndStopAudio();
                 }
             } 
