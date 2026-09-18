@@ -1,5 +1,5 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode
-window.addEventListener('load', function() {
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Instant Auto Sound)
+window.addEventListener('DOMContentLoaded', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
         canvas = document.createElement('canvas');
@@ -14,7 +14,7 @@ window.addEventListener('load', function() {
     let particles = [];
     let fireEmbers = [];
 
-    let state = 'WAIT_CLICK'; // รอการกดปุ่ม ENTER SYSTEM
+    let state = 'ENTER'; // เริ่มทำงานทันที ไม่ต้องรอปุ่ม
     let introProgress = 0; 
     let postIntroProgress = 0; 
     let godzillaX = -380; 
@@ -24,41 +24,54 @@ window.addEventListener('load', function() {
     // Elements ของ Intro Overlay & Audio
     const introOverlay = document.getElementById('introOverlay');
     const introProgressBar = document.getElementById('introProgress');
-    const startBtn = document.getElementById('startBtn');
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
-    // SYSTEM START & AUDIO FADE CONTROL (เปิดเสียงเฉพาะฉากเปิด)
+    // INSTANT AUDIO AUTOPLAY & UNMUTE ON FIRST INTERACTION
     // ----------------------------------------------------
-    if (startBtn) {
-        startBtn.addEventListener('click', () => {
-            // 1. เล่นเสียงฉากเปิด
-            if (introSound) {
-                introSound.currentTime = 0;
-                introSound.volume = 1.0; // ตั้งค่าความดังสูงสุดขณะเล่นฉากเปิด
-                introSound.play().catch(err => console.log("Audio play blocked:", err));
-            }
+    if (introSound) {
+        introSound.currentTime = 0;
+        introSound.volume = 1.0;
 
-            // 2. เริ่มแอนิเมชัน Godzilla
-            state = 'ENTER';
+        // พยายามเล่นเสียงทันที
+        const playPromise = introSound.play();
 
-            // 3. ปรับสไตล์ปุ่มหลังกด
-            startBtn.style.pointerEvents = 'none';
-            startBtn.innerText = 'LAUNCHING... 🚀';
-        });
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // หากถูกเบราว์เซอร์บล็อก ให้เล่นแบบ Mute ไว้ก่อน แล้วเปิดเสียงทันทีที่มี Interaction ใดๆ
+                introSound.muted = true;
+                introSound.play();
+
+                const unmuteAudio = () => {
+                    introSound.muted = false;
+                    introSound.volume = 1.0;
+                    // ลบ Event Listeners ออกทันทีที่ปลดล็อกเสียงสำเร็จ
+                    window.removeEventListener('mousemove', unmuteAudio);
+                    window.removeEventListener('touchstart', unmuteAudio);
+                    window.removeEventListener('mousedown', unmuteAudio);
+                    window.removeEventListener('scroll', unmuteAudio);
+                    window.removeEventListener('keydown', unmuteAudio);
+                };
+
+                window.addEventListener('mousemove', unmuteAudio, { once: true });
+                window.addEventListener('touchstart', unmuteAudio, { once: true });
+                window.addEventListener('mousedown', unmuteAudio, { once: true });
+                window.addEventListener('scroll', unmuteAudio, { once: true });
+                window.addEventListener('keydown', unmuteAudio, { once: true });
+            });
+        }
     }
 
-    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out)
+    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out) เมื่อจบฉาก
     function fadeAndStopAudio() {
         if (!introSound) return;
         
-        // ค่อยๆ ลด Volume ทุกๆ 100ms
         const fadeAudio = setInterval(() => {
             if (introSound.volume > 0.1) {
                 introSound.volume -= 0.1;
             } else {
-                introSound.pause(); // หยุดเล่นเสียงทันที
-                introSound.currentTime = 0; // รีเซ็ตเวลาเสียง
+                introSound.pause();
+                introSound.currentTime = 0;
                 introSound.volume = 0;
                 clearInterval(fadeAudio);
             }
@@ -250,7 +263,7 @@ window.addEventListener('load', function() {
         ctx.fillRect(0, height - 180, width, 180);
 
         // 2. GODZILLA INTRO ANIMATION
-        if (state !== 'READY' && state !== 'WAIT_CLICK') {
+        if (state !== 'READY') {
             const headY = height * 0.48;
 
             if (state === 'ENTER') {
@@ -278,7 +291,6 @@ window.addEventListener('load', function() {
                     state = 'BEAM';
                     introProgress = 0;
                     
-                    // สั่งให้ฉากเปิด (Intro Overlay) จางหายออกเมื่อยิงแสง
                     if (introOverlay) {
                         introOverlay.classList.add('fade-out');
                         setTimeout(() => {
@@ -286,7 +298,6 @@ window.addEventListener('load', function() {
                         }, 800);
                     }
 
-                    // *** หยุดเสียงทันทีเมื่อจบฉากเปิด ***
                     fadeAndStopAudio();
                 }
             } 
