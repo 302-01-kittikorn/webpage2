@@ -1,4 +1,4 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Instant Auto Sound)
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Wait for Enter Key)
 window.addEventListener('DOMContentLoaded', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', function() {
     let particles = [];
     let fireEmbers = [];
 
-    let state = 'ENTER'; // เริ่มทำงานแอนิเมชันทันที ไม่ต้องรอปุ่ม
+    let state = 'ENTER'; 
     let introProgress = 0; 
     let postIntroProgress = 0; 
     let godzillaX = -380; 
@@ -27,18 +27,16 @@ window.addEventListener('DOMContentLoaded', function() {
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
-    // INSTANT AUDIO AUTOPLAY & UNMUTE ON FIRST INTERACTION
+    // INSTANT AUDIO AUTOPLAY & UNMUTE
     // ----------------------------------------------------
     if (introSound) {
         introSound.currentTime = 0;
         introSound.volume = 1.0;
 
-        // พยายามสั่งเล่นเสียงทันที
         const playPromise = introSound.play();
 
         if (playPromise !== undefined) {
             playPromise.catch(() => {
-                // หากเบราว์เซอร์บล็อก ให้เล่นแบบปิดเสียงไว้ก่อน แล้วปลดล็อกเสียงดัง 100% ทันทีเมื่อผู้ใช้ขยับเมาส์หรือแตะหน้าจอ
                 introSound.muted = true;
                 introSound.play();
 
@@ -76,6 +74,29 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         }, 100);
     }
+
+    // ----------------------------------------------------
+    // WAIT FOR ENTER KEY TO START BEAM
+    // ----------------------------------------------------
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            if (state === 'ENTER' || state === 'CHARGE') {
+                state = 'BEAM';
+                introProgress = 0;
+                
+                if (introProgressBar) introProgressBar.style.width = '100%';
+
+                if (introOverlay) {
+                    introOverlay.classList.add('fade-out');
+                    setTimeout(() => {
+                        introOverlay.style.display = 'none';
+                    }, 800);
+                }
+
+                fadeAndStopAudio();
+            }
+        }
+    });
 
     // ----------------------------------------------------
     // HEAT VENT TOGGLE
@@ -284,21 +305,8 @@ window.addEventListener('DOMContentLoaded', function() {
                 const mouthY = headY + 8;
                 addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
 
-                if (introProgressBar) introProgressBar.style.width = `${40 + chargeEnergy * 60}%`;
-
-                if (chargeEnergy >= 1) {
-                    state = 'BEAM';
-                    introProgress = 0;
-                    
-                    if (introOverlay) {
-                        introOverlay.classList.add('fade-out');
-                        setTimeout(() => {
-                            introOverlay.style.display = 'none';
-                        }, 800);
-                    }
-
-                    fadeAndStopAudio();
-                }
+                // แสดง Progress Bar เต็มรอไว้ และชาร์จพลังค้างวนไปเรื่อยๆ จนกว่าจะกด Enter
+                if (introProgressBar) introProgressBar.style.width = `95%`;
             } 
             else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
                 const mouthX = godzillaX + 115;
