@@ -1,4 +1,4 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Auto Start - No Enter System)
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Fully Automatic)
 window.addEventListener('load', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -14,7 +14,7 @@ window.addEventListener('load', function() {
     let particles = [];
     let fireEmbers = [];
 
-    let state = 'ENTER'; // เริ่มต้นเข้าสู่ฉาก Godzilla ทันที
+    let state = 'ENTER'; // เริ่มต้นฉากเปิดทันทีอัตโนมัติ
     let introProgress = 0; 
     let postIntroProgress = 0; 
     let godzillaX = -380; 
@@ -27,35 +27,34 @@ window.addEventListener('load', function() {
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
-    // AUTO START AUDIO & FADE CONTROL
+    // AUTO START AUDIO & FADE CONTROL (เปิดเสียงเฉพาะฉากเปิด)
     // ----------------------------------------------------
     if (introSound) {
         introSound.currentTime = 0;
-        introSound.volume = 1.0; // ตั้งความดังสูงสุดเฉพาะช่วงฉากเปิด
+        introSound.volume = 1.0; // ความดังเต็มที่ช่วงฉากเปิด
         introSound.play().catch(err => {
-            console.log("Autoplay blocked by browser. Audio will play on first user interaction.", err);
-            // กรณี Browser บล็อก Autoplay จะเริ่มเล่นทันทีเมื่อขยับเม้าส์หรือกดหน้าจอ
-            const startAudioOnInteraction = () => {
+            console.log("Autoplay blocked by browser. Playing on first interaction.", err);
+            // ป้องกันกรณีเบราว์เซอร์บล็อก Autoplay ให้เล่นเมื่อขยับหรือแตะหน้าจอครั้งแรก
+            const handleUserInteraction = () => {
                 introSound.play();
-                window.removeEventListener('click', startAudioOnInteraction);
-                window.removeEventListener('keydown', startAudioOnInteraction);
-                window.removeEventListener('touchstart', startAudioOnInteraction);
+                window.removeEventListener('click', handleUserInteraction);
+                window.removeEventListener('touchstart', handleUserInteraction);
+                window.removeEventListener('mousemove', handleUserInteraction);
             };
-            window.addEventListener('click', startAudioOnInteraction);
-            window.addEventListener('keydown', startAudioOnInteraction);
-            window.addEventListener('touchstart', startAudioOnInteraction);
+            window.addEventListener('click', handleUserInteraction);
+            window.addEventListener('touchstart', handleUserInteraction);
+            window.addEventListener('mousemove', handleUserInteraction);
         });
     }
 
-    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิทเมื่อจบฉากเปิด
+    // ฟังก์ชันค่อยๆ ลดเสียงจนหยุดเล่นสนิท
     function fadeAndStopAudio() {
         if (!introSound) return;
-        
         const fadeAudio = setInterval(() => {
             if (introSound.volume > 0.1) {
                 introSound.volume -= 0.1;
             } else {
-                introSound.pause(); // หยุดเล่นเสียงถาวร
+                introSound.pause(); // หยุดเล่นเสียง
                 introSound.currentTime = 0;
                 introSound.volume = 0;
                 clearInterval(fadeAudio);
@@ -276,7 +275,7 @@ window.addEventListener('load', function() {
                     state = 'BEAM';
                     introProgress = 0;
                     
-                    // ฉากเปิดจางหายเมื่อยิงแสง
+                    // ปิดฉาก Intro เมื่อยิงเลเซอร์
                     if (introOverlay) {
                         introOverlay.classList.add('fade-out');
                         setTimeout(() => {
@@ -284,7 +283,7 @@ window.addEventListener('load', function() {
                         }, 800);
                     }
 
-                    // ปิดเสียงเมื่อจบฉากเปิด
+                    // ปิดเสียงเมื่อฉากเปิดจบ
                     fadeAndStopAudio();
                 }
             } 
