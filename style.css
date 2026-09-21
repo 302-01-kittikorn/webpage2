@@ -200,60 +200,12 @@ h1, h2, h3, h4 {
     gap: 15px;
 }
 
-/* ==========================================
-   FIRE PROFILE FRAME (เอฟเฟกต์ประกายไฟลุกวูบวาบ)
-   ========================================== */
+/* Profile Frame (แบบเดิม) */
 .hero-image-wrapper {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 50%;
-    padding: 6px;
-}
-
-/* ชั้นที่ 1: เปลวไฟชั้นในแบบตัดขอบเน้นรูปทรง */
-.hero-image-wrapper::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 0deg,
-        #ff4500,
-        #ffd700,
-        #c084fc,
-        #ff0055,
-        #ff8c00,
-        #ff4500
-    );
-    z-index: 1;
-    animation: rotateSparks 2.5s linear infinite;
-    filter: blur(4px) contrast(1.8); /* ลดความเบลอ เพิ่มความคมของไฟ */
-}
-
-/* ชั้นที่ 2: สร้างประกายไฟและลำแสงพุ่งกระจายออกรอบๆ */
-.hero-image-wrapper::after {
-    content: '';
-    position: absolute;
-    top: -18px;
-    left: -18px;
-    right: -18px;
-    bottom: -18px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        rgba(255, 215, 0, 0.8) 0%,
-        rgba(255, 69, 0, 0.6) 40%,
-        rgba(168, 85, 247, 0.4) 65%,
-        transparent 75%
-    );
-    z-index: 0;
-    animation: sparkFlicker 0.15s infinite alternate, rotateSparks 4s linear infinite reverse;
-    filter: blur(8px);
 }
 
 .hero-img {
@@ -261,15 +213,10 @@ h1, h2, h3, h4 {
     height: 300px;
     border-radius: 50%;
     object-fit: cover;
+    border: 3px solid rgba(192, 132, 252, 0.5);
+    box-shadow: 0 0 25px rgba(192, 132, 252, 0.3);
     position: relative;
     z-index: 2;
-    /* สร้างเงาลุกเป็นประกายไฟซ้อนกัน 3 ชั้นรอบขอบรูป */
-    box-shadow: 
-        0 0 10px #ffd700,
-        0 0 20px #ff4500,
-        0 0 35px #a855f7,
-        inset 0 0 15px rgba(0, 0, 0, 0.6);
-    border: 2px solid #fff;
     transition: transform 0.3s ease;
 }
 
@@ -278,29 +225,11 @@ h1, h2, h3, h4 {
 }
 
 .image-bg-glow {
-    display: none; /* ซ่อนพื้นหลังเดิมเพื่อไม่ให้แย่งความเด่นของประกายไฟ */
-}
-
-/* Keyframes สำหรับหมุนวงแหวนไฟ */
-@keyframes rotateSparks {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Keyframes สำหรับสั่นกระพริบถี่ๆ แบบประกายไฟสปาร์ก */
-@keyframes sparkFlicker {
-    0% {
-        opacity: 0.75;
-        transform: scale(0.98) translate(1px, -1px);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.03) translate(-1px, 1px);
-    }
-    100% {
-        opacity: 0.85;
-        transform: scale(1.01) translate(0px, -2px);
-    }
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(192,132,252,0.4) 0%, rgba(0,0,0,0) 70%);
+    z-index: 0;
 }
 
 /* Common Page Setup */
