@@ -14,9 +14,9 @@ window.addEventListener('load', function() {
     let particles = [];
     let fireEmbers = [];
 
-    let state = 'WAIT_CLICK'; // เปลี่ยนสถานะเริ่มต้นเป็นรอการกดปุ่ม ENTER SYSTEM
+    let state = 'WAIT_CLICK'; // รอการกดปุ่ม ENTER SYSTEM
     let introProgress = 0; 
-    let postIntroProgress = 0; // ตัวนับเวลาการยิงแสงต่อเนื่องบนหน้าเว็บ
+    let postIntroProgress = 0; 
     let godzillaX = -380; 
     let godzillaTargetX = 110; 
     let chargeEnergy = 0;
@@ -28,18 +28,18 @@ window.addEventListener('load', function() {
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
-    // SYSTEM START & AUDIO FADE CONTROL
+    // SYSTEM START & AUDIO FADE CONTROL (เปิดเสียงเฉพาะฉากเปิด)
     // ----------------------------------------------------
     if (startBtn) {
         startBtn.addEventListener('click', () => {
-            // 1. เริ่มเล่นเสียงฉากเปิด
+            // 1. เล่นเสียงฉากเปิด
             if (introSound) {
                 introSound.currentTime = 0;
-                introSound.volume = 1.0;
+                introSound.volume = 1.0; // ตั้งค่าความดังสูงสุดขณะเล่นฉากเปิด
                 introSound.play().catch(err => console.log("Audio play blocked:", err));
             }
 
-            // 2. เปลี่ยนสถานะให้เริ่มแอนิเมชัน Godzilla
+            // 2. เริ่มแอนิเมชัน Godzilla
             state = 'ENTER';
 
             // 3. ปรับสไตล์ปุ่มหลังกด
@@ -48,14 +48,18 @@ window.addEventListener('load', function() {
         });
     }
 
+    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out)
     function fadeAndStopAudio() {
         if (!introSound) return;
+        
+        // ค่อยๆ ลด Volume ทุกๆ 100ms
         const fadeAudio = setInterval(() => {
             if (introSound.volume > 0.1) {
                 introSound.volume -= 0.1;
             } else {
-                introSound.pause(); // หยุดเล่นเสียงถาวรเมื่อฉากเปิดปิดจบ
-                introSound.currentTime = 0;
+                introSound.pause(); // หยุดเล่นเสียงทันที
+                introSound.currentTime = 0; // รีเซ็ตเวลาเสียง
+                introSound.volume = 0;
                 clearInterval(fadeAudio);
             }
         }, 100);
@@ -274,7 +278,7 @@ window.addEventListener('load', function() {
                     state = 'BEAM';
                     introProgress = 0;
                     
-                    // สั่งให้ฉากเปิด (Intro Overlay) เริ่มจางหายออกทันทีเมื่อปล่อยแสง
+                    // สั่งให้ฉากเปิด (Intro Overlay) จางหายออกเมื่อยิงแสง
                     if (introOverlay) {
                         introOverlay.classList.add('fade-out');
                         setTimeout(() => {
@@ -282,7 +286,7 @@ window.addEventListener('load', function() {
                         }, 800);
                     }
 
-                    // เริ่มการ Fade Out เสียงให้เบาลงจนดับสนิท
+                    // *** หยุดเสียงทันทีเมื่อจบฉากเปิด ***
                     fadeAndStopAudio();
                 }
             } 
