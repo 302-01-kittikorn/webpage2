@@ -1,4 +1,4 @@
-// Shin Godzilla Intro - Fully Automatic Launch (No Enter Key Required)
+// Shin Godzilla Intro - Sci-Fi HUD Integration
 window.addEventListener('DOMContentLoaded', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -21,9 +21,12 @@ window.addEventListener('DOMContentLoaded', function() {
     let godzillaTargetX = 110; 
     let chargeEnergy = 0;
 
-    // Elements ของ Intro Overlay & Audio
+    // Elements ของ Sci-Fi HUD Intro Overlay & Audio
     const introOverlay = document.getElementById('introOverlay');
     const introProgressBar = document.getElementById('introProgress');
+    const percentText = document.getElementById('percentText');
+    const loaderText = document.getElementById('loaderText');
+    const startBtn = document.getElementById('startBtn');
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
@@ -59,6 +62,20 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // ฟังก์ชันอัปเดตเปอร์เซ็นต์ของ Sci-Fi HUD Bar
+    function updateHUDProgress(percent) {
+        const currentPercent = Math.min(100, Math.max(0, Math.floor(percent)));
+        
+        if (introProgressBar) introProgressBar.style.width = `${currentPercent}%`;
+        if (percentText) percentText.innerText = `${currentPercent}%`;
+
+        // เมื่อโหลดครบ 100% สลับจากคำว่า LOADING... เป็นปุ่ม ENTER SYSTEM
+        if (currentPercent >= 100) {
+            if (loaderText) loaderText.style.display = 'none';
+            if (startBtn) startBtn.style.display = 'inline-block';
+        }
+    }
+
     // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out) เมื่อยิงลำแสง
     function fadeAndStopAudio() {
         if (!introSound) return;
@@ -75,13 +92,13 @@ window.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 
-    // ฟังก์ชันเริ่มยิงลำแสงอัตโนมัติและซ่อน Intro
+    // ฟังก์ชันเริ่มยิงลำแสงและซ่อน Intro
     function triggerBeamStart() {
         if (state === 'ENTER' || state === 'CHARGE') {
             state = 'BEAM';
             introProgress = 0;
             
-            if (introProgressBar) introProgressBar.style.width = '100%';
+            updateHUDProgress(100);
 
             if (introOverlay) {
                 introOverlay.classList.add('fade-out');
@@ -92,6 +109,11 @@ window.addEventListener('DOMContentLoaded', function() {
 
             fadeAndStopAudio();
         }
+    }
+
+    // ผูก Event ให้ปุ่ม [ ENTER SYSTEM ] ยิงลำแสงเปิดตัวเว็บ
+    if (startBtn) {
+        startBtn.addEventListener('click', triggerBeamStart);
     }
 
     // ----------------------------------------------------
@@ -287,7 +309,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
 
                 const enterProgress = Math.min(1, (godzillaX - (-380)) / (godzillaTargetX - (-380)));
-                if (introProgressBar) introProgressBar.style.width = `${enterProgress * 40}%`;
+                updateHUDProgress(enterProgress * 40);
 
                 if (Math.abs(godzillaX - godzillaTargetX) < 2) {
                     state = 'CHARGE';
@@ -301,13 +323,8 @@ window.addEventListener('DOMContentLoaded', function() {
                 const mouthY = headY + 8;
                 addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
 
-                const chargeProgress = 40 + Math.min(60, chargeEnergy * 40);
-                if (introProgressBar) introProgressBar.style.width = `${chargeProgress}%`;
-
-                // เมื่อชาร์จเต็มที่ ( chargeEnergy >= 1.2 ) ให้ยิงลำแสงอัตโนมัติทันที
-                if (chargeEnergy >= 1.2) {
-                    triggerBeamStart();
-                }
+                const chargeProgress = 40 + Math.min(60, (chargeEnergy / 1.2) * 60);
+                updateHUDProgress(chargeProgress);
             } 
             else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
                 const mouthX = godzillaX + 115;
