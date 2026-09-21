@@ -1,4 +1,4 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Auto-Play Edition)
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode
 window.addEventListener('load', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -14,8 +14,7 @@ window.addEventListener('load', function() {
     let particles = [];
     let fireEmbers = [];
 
-    // เริ่มต้นสถานะ ENTER ทันทีที่โหลดหน้าเว็บ
-    let state = 'ENTER'; 
+    let state = 'WAITING'; // รอผู้ใช้กดปุ่ม ENTER SYSTEM
     let introProgress = 0; 
     let postIntroProgress = 0; 
     let godzillaX = -380; 
@@ -26,29 +25,45 @@ window.addEventListener('load', function() {
     const introOverlay = document.getElementById('introOverlay');
     const introProgressBar = document.getElementById('introProgress');
     const introSound = document.getElementById('introSound');
+    const startBtn = document.getElementById('startBtn');
 
     // ----------------------------------------------------
-    // AUTOMATIC START & AUDIO PLAY
+    // PLAY BGM ON OPEN & STOP ON BUTTON CLICK
     // ----------------------------------------------------
-    // ซ่อนกล่องข้อความปุ่มกดอัตโนมัติ
-    const introContent = document.querySelector('.intro-content');
-    if (introContent) {
-        introContent.style.display = 'none';
-    }
-
-    // พยายามเล่นเพลงอัตโนมัติ
+    // เล่นเพลงทันทีตั้งแต่นาทีแรกที่โหลดเว็บขึ้นมา และตั้งค่าให้เล่นวนลูปไปเรื่อยๆ
     if (introSound) {
         introSound.currentTime = 0;
         introSound.volume = 1.0;
+        introSound.loop = true; // เล่นวนซ้ำไม่หยุด
+        
         const playPromise = introSound.play();
         if (playPromise !== undefined) {
             playPromise.catch(err => {
-                console.log("Autoplay audio was blocked by browser policy, but animation will continue.");
+                console.log("Autoplay blocked, waiting for user action:", err);
             });
         }
     }
 
-    // ฟังก์ชันค่อยๆ ลดเสียงจนหยุดเล่นสนิทเมื่อลำแสงเลเซอร์ยิงจบ
+    // เมื่อกดปุ่ม ENTER SYSTEM ให้หยุดเพลงและเริ่มแอนิเมชันเข้าเว็บ
+    if (startBtn) {
+        startBtn.addEventListener('click', function() {
+            // ค่อยๆ ลดเสียงเพลงลงจนหยุดสนิท
+            fadeAndStopAudio();
+
+            // เปลี่ยนสถานะเริ่มฉาก Godzilla เข้ามา
+            state = 'ENTER';
+            
+            // ซ่อนหน้าต่างปุ่มกด
+            const introContent = document.querySelector('.intro-content');
+            if (introContent) {
+                introContent.style.transition = 'opacity 0.5s ease';
+                introContent.style.opacity = '0';
+                setTimeout(() => introContent.style.display = 'none', 500);
+            }
+        });
+    }
+
+    // ฟังก์ชันค่อยๆ ลดเสียงลงเรื่อยๆ จนดับสนิท
     function fadeAndStopAudio() {
         if (!introSound) return;
         const fadeAudio = setInterval(() => {
@@ -248,7 +263,7 @@ window.addEventListener('load', function() {
         ctx.fillRect(0, height - 180, width, 180);
 
         // 2. GODZILLA INTRO ANIMATION
-        if (state !== 'READY') {
+        if (state !== 'WAITING' && state !== 'READY') {
             const headY = height * 0.48;
 
             if (state === 'ENTER') {
@@ -276,15 +291,12 @@ window.addEventListener('load', function() {
                     state = 'BEAM';
                     introProgress = 0;
                     
-                    // ปิดฉาก Intro เมื่อเริ่มยิงเลเซอร์
                     if (introOverlay) {
                         introOverlay.classList.add('fade-out');
                         setTimeout(() => {
                             introOverlay.style.display = 'none';
                         }, 800);
                     }
-
-                    fadeAndStopAudio();
                 }
             } 
             else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
