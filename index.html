@@ -7,15 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Video Intro Overlay - Student Edition) -->
+    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Video Intro Overlay) -->
     <div id="introOverlay" class="intro-overlay">
-        <!-- 1. วิดีโอพื้นหลัง (แก้ชื่อไฟล์วิดีโอซ้ำซ้อนเรียบร้อย) -->
+        <!-- 1. วิดีโอพื้นหลัง -->
         <video autoplay muted loop playsinline class="intro-video-bg">
             <source src="intro-video.mp4.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
 
-        <!-- 2. ไฟล์เสียง MP3 จากเพลง/คลิปที่ต้องการ -->
+        <!-- 2. ไฟล์เสียง MP3 ฉากเปิด (Persecution of the Masses) -->
         <audio id="introSound" src="crucified.mp3.mp3" preload="auto"></audio>
 
         <!-- 3. แผ่นฟิล์มกรองสีมืดเพื่อให้ข้อความอ่านง่าย -->
@@ -33,6 +33,16 @@
             </button>
         </div>
     </div>
+
+    <!-- เครื่องเล่นเพลงประจำเว็บ (Background Music Player) มุมซ้ายล่าง -->
+    <div class="bg-music-player">
+        <button id="bgMusicToggle" class="music-btn" title="Toggle Music">
+            <span id="musicIcon">🎵</span>
+            <span id="musicStatusText">PLAY MUSIC</span>
+        </button>
+    </div>
+    <!-- ไฟล์เสียงสำหรับเปิดฟังในเว็บ (Persecution of the Masses) -->
+    <audio id="bgSound" src="Y2Mate.is--OFFICIAL MV.mp3" preload="auto" loop></audio>
 
     <!-- ปุ่มสลับโหมดระบายความร้อน Godzilla (Heat Vent Mode) มุมขวาล่าง -->
     <div class="godzilla-controls">
