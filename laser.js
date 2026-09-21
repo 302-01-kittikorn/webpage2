@@ -21,12 +21,12 @@ window.addEventListener('DOMContentLoaded', function() {
     let godzillaTargetX = 110; 
     let chargeEnergy = 0;
 
-    // Elements ของ Sci-Fi HUD Intro Overlay & Audio
+    // Elements ของ Sci-Fi HUD Intro Overlay & Audio (ตรงตาม HTML เป๊ะๆ)
     const introOverlay = document.getElementById('introOverlay');
-    const introProgressBar = document.getElementById('introProgress');
-    const percentText = document.getElementById('percentText');
-    const loaderText = document.getElementById('loaderText');
-    const startBtn = document.getElementById('startBtn');
+    const introProgressBar = document.getElementById('introProgress'); // หลอดสี
+    const percentText = document.getElementById('percentText');       // ตัวเลข %
+    const loaderText = document.getElementById('loaderText');         // ข้อความ LOADING...
+    const startBtn = document.getElementById('startBtn');             // ปุ่ม ENTER SYSTEM ⚡
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
@@ -62,14 +62,14 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ฟังก์ชันอัปเดตเปอร์เซ็นต์ของ Sci-Fi HUD Bar
+    // ฟังก์ชันอัปเดตหลอดโหลดและตัวเลข % ของ Sci-Fi HUD
     function updateHUDProgress(percent) {
         const currentPercent = Math.min(100, Math.max(0, Math.floor(percent)));
         
         if (introProgressBar) introProgressBar.style.width = `${currentPercent}%`;
         if (percentText) percentText.innerText = `${currentPercent}%`;
 
-        // เมื่อโหลดครบ 100% สลับจากคำว่า LOADING... เป็นปุ่ม ENTER SYSTEM
+        // เมื่อโหลดครบ 100% ซ่อน LOADING... แล้วโชว์ปุ่ม [ ENTER SYSTEM ⚡ ]
         if (currentPercent >= 100) {
             if (loaderText) loaderText.style.display = 'none';
             if (startBtn) startBtn.style.display = 'inline-block';
@@ -111,7 +111,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ผูก Event ให้ปุ่ม [ ENTER SYSTEM ] ยิงลำแสงเปิดตัวเว็บ
+    // เมื่อกดปุ่ม ENTER SYSTEM ⚡ ให้เริ่มยิงลำแสงทันที
     if (startBtn) {
         startBtn.addEventListener('click', triggerBeamStart);
     }
@@ -325,6 +325,11 @@ window.addEventListener('DOMContentLoaded', function() {
 
                 const chargeProgress = 40 + Math.min(60, (chargeEnergy / 1.2) * 60);
                 updateHUDProgress(chargeProgress);
+
+                // เมื่อชาร์จครบ 100% (chargeEnergy >= 1.2) จะยิงอัตโนมัติ
+                if (chargeEnergy >= 1.2) {
+                    triggerBeamStart();
+                }
             } 
             else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
                 const mouthX = godzillaX + 115;
