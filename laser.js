@@ -1,4 +1,3 @@
-// Shin Godzilla Intro - Sci-Fi HUD Integration
 window.addEventListener('DOMContentLoaded', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -9,491 +8,87 @@ window.addEventListener('DOMContentLoaded', function() {
 
     const ctx = canvas.getContext('2d');
     let width, height;
-    let mouse = { x: -100, y: -100, isDown: false, active: false };
-    let burnMarks = [];
-    let particles = [];
-    let fireEmbers = [];
-
     let state = 'ENTER'; 
     let introProgress = 0; 
-    let postIntroProgress = 0; 
     let godzillaX = -380; 
     let godzillaTargetX = 110; 
     let chargeEnergy = 0;
 
-    // Elements ของ Sci-Fi HUD Intro Overlay & Audio (ตรงตาม HTML เป๊ะๆ)
     const introOverlay = document.getElementById('introOverlay');
-    const introProgressBar = document.getElementById('introProgress'); // หลอดสี
-    const percentText = document.getElementById('percentText');       // ตัวเลข %
-    const loaderText = document.getElementById('loaderText');         // ข้อความ LOADING...
-    const startBtn = document.getElementById('startBtn');             // ปุ่ม ENTER SYSTEM ⚡
+    const introProgressBar = document.getElementById('introProgress');
+    const percentText = document.getElementById('percentText');
+    const loaderText = document.getElementById('loaderText');
+    const startBtn = document.getElementById('startBtn');
     const introSound = document.getElementById('introSound');
 
-    // ----------------------------------------------------
-    // INSTANT AUDIO AUTOPLAY & UNMUTE
-    // ----------------------------------------------------
-    if (introSound) {
-        introSound.currentTime = 0;
-        introSound.volume = 1.0;
-
-        const playPromise = introSound.play();
-
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                introSound.muted = true;
-                introSound.play();
-
-                const unmuteAudio = () => {
-                    introSound.muted = false;
-                    introSound.volume = 1.0;
-                    window.removeEventListener('mousemove', unmuteAudio);
-                    window.removeEventListener('touchstart', unmuteAudio);
-                    window.removeEventListener('mousedown', unmuteAudio);
-                    window.removeEventListener('scroll', unmuteAudio);
-                    window.removeEventListener('keydown', unmuteAudio);
-                };
-
-                window.addEventListener('mousemove', unmuteAudio, { once: true });
-                window.addEventListener('touchstart', unmuteAudio, { once: true });
-                window.addEventListener('mousedown', unmuteAudio, { once: true });
-                window.addEventListener('scroll', unmuteAudio, { once: true });
-                window.addEventListener('keydown', unmuteAudio, { once: true });
-            });
-        }
-    }
-
-    // ฟังก์ชันอัปเดตหลอดโหลดและตัวเลข % ของ Sci-Fi HUD
+    // อัปเดตหลอดโหลด
     function updateHUDProgress(percent) {
         const currentPercent = Math.min(100, Math.max(0, Math.floor(percent)));
-        
         if (introProgressBar) introProgressBar.style.width = `${currentPercent}%`;
         if (percentText) percentText.innerText = `${currentPercent}%`;
 
-        // เมื่อโหลดครบ 100% ซ่อน LOADING... แล้วโชว์ปุ่ม [ ENTER SYSTEM ⚡ ]
         if (currentPercent >= 100) {
             if (loaderText) loaderText.style.display = 'none';
             if (startBtn) startBtn.style.display = 'inline-block';
         }
     }
 
-    // ฟังก์ชันค่อยๆ เบาเสียงลงจนดับสนิท (Fade Out) เมื่อยิงลำแสง
-    function fadeAndStopAudio() {
-        if (!introSound) return;
-        
-        const fadeAudio = setInterval(() => {
-            if (introSound.volume > 0.1) {
-                introSound.volume -= 0.1;
-            } else {
-                introSound.pause();
-                introSound.currentTime = 0;
-                introSound.volume = 0;
-                clearInterval(fadeAudio);
-            }
-        }, 100);
-    }
-
-    // ฟังก์ชันเริ่มยิงลำแสงและซ่อน Intro
-    function triggerBeamStart() {
-        if (state === 'ENTER' || state === 'CHARGE') {
-            state = 'BEAM';
-            introProgress = 0;
-            
-            updateHUDProgress(100);
-
-            if (introOverlay) {
-                introOverlay.classList.add('fade-out');
-                setTimeout(() => {
-                    introOverlay.style.display = 'none';
-                }, 800);
-            }
-
-            fadeAndStopAudio();
+    // ซ่อนฉากเปิด เพื่อเปิดเผยข้อมูลทั้งหมดในเว็บ
+    function dismissOverlay() {
+        if (introOverlay) {
+            introOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+            }, 800);
         }
     }
 
-    // เมื่อกดปุ่ม ENTER SYSTEM ⚡ ให้เริ่มยิงลำแสงทันที
     if (startBtn) {
-        startBtn.addEventListener('click', triggerBeamStart);
-    }
-
-    // ----------------------------------------------------
-    // HEAT VENT TOGGLE
-    // ----------------------------------------------------
-    const heatVentBtn = document.getElementById('heatVentBtn');
-    if (heatVentBtn) {
-        heatVentBtn.addEventListener('click', () => {
-            document.body.classList.toggle('heat-vent-active');
-            heatVentBtn.classList.toggle('active');
+        startBtn.addEventListener('click', () => {
+            state = 'BEAM';
+            dismissOverlay();
+            if (introSound) introSound.pause();
         });
     }
 
-    // ----------------------------------------------------
-    // SETUP CANVAS & PARTICLES
-    // ----------------------------------------------------
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
-        initFireEmbers();
     }
-
-    function initFireEmbers() {
-        fireEmbers = [];
-        const count = Math.floor(width / 15);
-        for (let i = 0; i < count; i++) {
-            fireEmbers.push({
-                x: Math.random() * width,
-                y: height + Math.random() * 50,
-                radius: Math.random() * 2.5 + 1,
-                speedY: Math.random() * 1.5 + 0.6,
-                speedX: (Math.random() - 0.5) * 0.8,
-                color: Math.random() > 0.35 ? '#ff4500' : (Math.random() > 0.5 ? '#ff8c00' : '#c084fc'),
-                alpha: Math.random() * 0.8 + 0.2
-            });
-        }
-    }
-
     window.addEventListener('resize', resize);
     resize();
-
-    // Mouse & Touch Event Listeners
-    const updateMousePos = (e) => {
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        mouse.x = clientX;
-        mouse.y = clientY;
-        mouse.active = true;
-    };
-
-    window.addEventListener('mousemove', updateMousePos);
-    window.addEventListener('touchmove', updateMousePos);
-
-    window.addEventListener('mousedown', (e) => {
-        mouse.isDown = true;
-        if (state === 'READY') {
-            addBurnMark(e.clientX, e.clientY);
-        }
-    });
-
-    window.addEventListener('touchstart', (e) => {
-        mouse.isDown = true;
-        updateMousePos(e);
-        if (state === 'READY' && e.touches[0]) {
-            addBurnMark(e.touches[0].clientX, e.touches[0].clientY);
-        }
-    });
-
-    window.addEventListener('mouseup', () => { mouse.isDown = false; });
-    window.addEventListener('touchend', () => { mouse.isDown = false; });
-
-    function addBurnMark(x, y) {
-        burnMarks.push({
-            x: x, y: y,
-            radius: Math.random() * 12 + 16,
-            alpha: 1, life: 200
-        });
-    }
-
-    function addParticles(x, y, count, isIntro = false) {
-        for (let i = 0; i < count; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * (isIntro ? 10 : 5) + 2;
-            particles.push({
-                x: x, y: y,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                radius: Math.random() * (isIntro ? 5 : 3) + 1,
-                color: Math.random() > 0.3 ? '#c084fc' : (Math.random() > 0.5 ? '#e9d5ff' : '#ff4500'),
-                alpha: 1, life: isIntro ? 45 : 25
-            });
-        }
-    }
-
-    function interactWithDOM(laserX, laserY) {
-        const elements = document.elementsFromPoint(laserX, laserY);
-        elements.forEach(el => {
-            if (el === canvas || el === document.body || el === document.documentElement || el === introOverlay) return;
-            const tag = el.tagName.toLowerCase();
-            if (tag === 'button' || el.classList.contains('btn') || tag === 'a') {
-                el.classList.add('godzilla-burned');
-                setTimeout(() => el.classList.remove('godzilla-burned'), 400);
-            } else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span'].includes(tag)) {
-                el.classList.add('godzilla-shake');
-                setTimeout(() => el.classList.remove('godzilla-shake'), 300);
-            }
-        });
-    }
-
-    // Godzilla Model
-    function drawDetailedGodzilla(x, y, scale = 1, isCharging = false, chargeRatio = 0) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(scale, scale);
-
-        const spines = [
-            { path: [[-120, 60], [-170, 20], [-130, -10], [-100, 30]], color: '#a855f7' },
-            { path: [[-95, 30], [-145, -20], [-105, -45], [-75, 0]], color: '#c084fc' },
-            { path: [[-70, 0], [-120, -60], [-80, -75], [-50, -25]], color: '#e9d5ff' },
-            { path: [[-45, -25], [-85, -85], [-55, -95], [-30, -45]], color: '#ffffff' },
-            { path: [[-140, 80], [-185, 50], [-150, 25], [-125, 55]], color: '#7e22ce' },
-            { path: [[-110, 50], [-155, 10], [-120, -15], [-95, 20]], color: '#a855f7' }
-        ];
-
-        spines.forEach((spine, idx) => {
-            ctx.beginPath();
-            ctx.moveTo(spine.path[0][0], spine.path[0][1]);
-            ctx.lineTo(spine.path[1][0], spine.path[1][1]);
-            ctx.lineTo(spine.path[2][0], spine.path[2][1]);
-            ctx.lineTo(spine.path[3][0], spine.path[3][1]);
-            ctx.closePath();
-
-            ctx.shadowBlur = isCharging ? 20 + idx * 5 : 5;
-            ctx.shadowColor = '#c084fc';
-            ctx.fillStyle = isCharging ? (Math.random() > 0.2 ? spine.color : '#ffffff') : '#1e1b4b';
-            ctx.fill();
-        });
-
-        ctx.shadowBlur = isCharging ? 25 : 8;
-        ctx.shadowColor = '#c084fc';
-        ctx.fillStyle = '#090a10';
-
-        ctx.beginPath();
-        ctx.moveTo(-160, 200);
-        ctx.quadraticCurveTo(-140, 100, -100, 40);
-        ctx.lineTo(-70, -15); ctx.lineTo(-50, -40); ctx.lineTo(-20, -55);
-        ctx.lineTo(15, -45); ctx.lineTo(40, -35); ctx.lineTo(75, -20);
-        ctx.lineTo(80, -10); ctx.lineTo(70, -5); ctx.lineTo(65, -12);
-        ctx.lineTo(55, -3); ctx.lineTo(50, -10); ctx.lineTo(40, 0); ctx.lineTo(35, -8);
-        ctx.lineTo(20, 5); ctx.lineTo(10, 15); ctx.lineTo(25, 20); ctx.lineTo(30, 12);
-        ctx.lineTo(42, 22); ctx.lineTo(48, 14); ctx.lineTo(60, 25); ctx.lineTo(68, 15);
-        ctx.lineTo(78, 28); ctx.lineTo(50, 45); ctx.lineTo(20, 60); ctx.lineTo(-20, 95);
-        ctx.quadraticCurveTo(-60, 140, -90, 200);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.ellipse(20, -30, 5, 3, Math.PI / 6, 0, Math.PI * 2);
-        ctx.fillStyle = isCharging ? '#ffffff' : '#c084fc';
-        ctx.shadowBlur = isCharging ? 15 : 5;
-        ctx.shadowColor = '#ffffff';
-        ctx.fill();
-
-        if (isCharging) {
-            ctx.beginPath();
-            ctx.arc(35, 5, 16 + Math.random() * 6, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = '#c084fc';
-            ctx.fill();
-        }
-
-        ctx.restore();
-    }
 
     function render() {
         ctx.clearRect(0, 0, width, height);
 
-        // 1. เปลวเพลิงเรืองแสงด้านล่าง
-        const fireGrad = ctx.createLinearGradient(0, height, 0, height - 160);
-        fireGrad.addColorStop(0, 'rgba(255, 69, 0, 0.4)');
-        fireGrad.addColorStop(0.5, 'rgba(255, 120, 0, 0.15)');
-        fireGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = fireGrad;
-        ctx.fillRect(0, height - 180, width, 180);
-
-        // 2. GODZILLA INTRO ANIMATION
         if (state !== 'READY') {
             const headY = height * 0.48;
 
             if (state === 'ENTER') {
-                godzillaX += (godzillaTargetX - godzillaX) * 0.045;
-                drawDetailedGodzilla(godzillaX, headY, 1.6, false, 0);
-
+                godzillaX += (godzillaTargetX - godzillaX) * 0.05;
                 const enterProgress = Math.min(1, (godzillaX - (-380)) / (godzillaTargetX - (-380)));
-                updateHUDProgress(enterProgress * 40);
+                updateHUDProgress(enterProgress * 50);
 
                 if (Math.abs(godzillaX - godzillaTargetX) < 2) {
                     state = 'CHARGE';
                 }
             } 
             else if (state === 'CHARGE') {
-                chargeEnergy += 0.022;
-                drawDetailedGodzilla(godzillaX, headY, 1.6 + Math.sin(chargeEnergy * 14) * 0.03, true, chargeEnergy);
-
-                const mouthX = godzillaX + 115;
-                const mouthY = headY + 8;
-                addParticles(mouthX + (Math.random() * 90 - 45), mouthY + (Math.random() * 90 - 45), 4, true);
-
-                const chargeProgress = 40 + Math.min(60, (chargeEnergy / 1.2) * 60);
+                chargeEnergy += 0.02;
+                const chargeProgress = 50 + Math.min(50, (chargeEnergy / 1.0) * 50);
                 updateHUDProgress(chargeProgress);
 
-                // เมื่อชาร์จครบ 100% (chargeEnergy >= 1.2) จะยิงอัตโนมัติ
-                if (chargeEnergy >= 1.2) {
-                    triggerBeamStart();
+                if (chargeEnergy >= 1.0) {
+                    state = 'BEAM';
+                    dismissOverlay();
                 }
-            } 
-            else if (state === 'BEAM' || state === 'POST_INTRO_BEAM') {
-                const mouthX = godzillaX + 115;
-                const mouthY = headY + 8;
-
-                drawDetailedGodzilla(godzillaX, headY, 1.65, true, 1);
-
-                let targetX, targetY;
-
-                if (state === 'BEAM') {
-                    introProgress += 0.018;
-                    targetX = width * Math.min(introProgress * 1.25, 1);
-                    targetY = headY + Math.sin(introProgress * Math.PI * 2) * 85;
-
-                    if (introProgress >= 1) {
-                        state = 'POST_INTRO_BEAM';
-                        postIntroProgress = 0;
-                    }
-                } else {
-                    postIntroProgress += 0.015;
-                    targetX = width * (1 - (postIntroProgress * 0.3));
-                    targetY = headY + Math.sin((1 + postIntroProgress) * Math.PI * 2) * 120;
-
-                    if (postIntroProgress >= 1) {
-                        state = 'READY';
-                        canvas.style.transform = 'none';
-                    }
+            }
+            else if (state === 'BEAM') {
+                introProgress += 0.02;
+                if (introProgress >= 1) {
+                    state = 'READY';
                 }
-
-                const bWidth = 42 + Math.random() * 16;
-                ctx.save();
-                ctx.shadowBlur = 50;
-                ctx.shadowColor = '#c084fc';
-
-                ctx.beginPath();
-                ctx.moveTo(mouthX, mouthY);
-                ctx.lineTo(targetX, targetY);
-                ctx.strokeStyle = 'rgba(192, 132, 252, 0.6)';
-                ctx.lineWidth = bWidth * 2.4;
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(mouthX, mouthY);
-                ctx.lineTo(targetX, targetY);
-                ctx.strokeStyle = '#a855f7';
-                ctx.lineWidth = bWidth;
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(mouthX, mouthY);
-                ctx.lineTo(targetX, targetY);
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = bWidth * 0.35;
-                ctx.stroke();
-                ctx.restore();
-
-                interactWithDOM(targetX, targetY);
-
-                if (Math.random() < 0.75) addBurnMark(targetX, targetY);
-                addParticles(targetX, targetY, 9, true);
-
-                canvas.style.transform = `translate(${(Math.random() - 0.5) * 12}px, ${(Math.random() - 0.5) * 12}px)`;
             }
-        }
-
-        // 3. Bottom Embers
-        fireEmbers.forEach(e => {
-            ctx.save();
-            ctx.globalAlpha = e.alpha * (0.6 + Math.sin(Date.now() * 0.005 + e.x) * 0.4);
-            ctx.fillStyle = e.color;
-            ctx.beginPath();
-            ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            e.y -= e.speedY;
-            e.x += e.speedX;
-
-            if (e.y < -10) {
-                e.y = height + Math.random() * 20;
-                e.x = Math.random() * width;
-            }
-        });
-
-        // 4. Burn Marks
-        for (let i = burnMarks.length - 1; i >= 0; i--) {
-            const b = burnMarks[i];
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-
-            const grad = ctx.createRadialGradient(b.x, b.y, 1, b.x, b.y, b.radius);
-            grad.addColorStop(0, `rgba(255, 69, 0, ${b.alpha})`);
-            grad.addColorStop(0.4, `rgba(168, 85, 247, ${b.alpha * 0.7})`);
-            grad.addColorStop(1, `rgba(11, 15, 25, 0)`);
-
-            ctx.fillStyle = grad;
-            ctx.fill();
-            ctx.restore();
-
-            b.life--;
-            b.alpha = b.life / 200;
-            if (b.life <= 0) burnMarks.splice(i, 1);
-        }
-
-        // 5. Interactive Mouse Laser
-        if (state === 'READY' && mouse.active) {
-            const startX = width;
-            const startY = 0;
-
-            const isClicking = mouse.isDown;
-            const laserWidth = isClicking ? 20 + Math.random() * 8 : 6 + Math.random() * 2;
-
-            ctx.save();
-            ctx.shadowBlur = isClicking ? 35 : 15;
-            ctx.shadowColor = '#c084fc';
-
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
-            ctx.lineWidth = laserWidth * 2.2;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = '#a855f7';
-            ctx.lineWidth = laserWidth;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = laserWidth * 0.3;
-            ctx.stroke();
-            ctx.restore();
-
-            interactWithDOM(mouse.x, mouse.y);
-            addParticles(mouse.x, mouse.y, isClicking ? 6 : 2);
-
-            if (isClicking && Math.random() < 0.4) {
-                addBurnMark(mouse.x + (Math.random() * 12 - 6), mouse.y + (Math.random() * 12 - 6));
-            }
-        }
-
-        // 6. Sparks Particles
-        for (let i = particles.length - 1; i >= 0; i--) {
-            const p = particles[i];
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.alpha;
-            ctx.fill();
-            ctx.globalAlpha = 1;
-
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life--;
-            p.alpha = p.life / 35;
-
-            if (p.life <= 0) particles.splice(i, 1);
         }
 
         requestAnimationFrame(render);
