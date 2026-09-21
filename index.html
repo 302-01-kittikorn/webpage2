@@ -1,127 +1,136 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>หน้าแรก - Shogun Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าแรก - Shogun Portfolio</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Video Intro Overlay - Student Edition) -->
-    <div id="introOverlay" class="intro-overlay">
-        <!-- 1. วิดีโอพื้นหลัง (แก้ชื่อไฟล์วิดีโอซ้ำซ้อนเรียบร้อย) -->
-        <video autoplay muted loop playsinline class="intro-video-bg">
-            <source src="intro-video.mp4.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Video Intro Overlay) -->
+    <div id="introOverlay" class="intro-overlay">
+        <!-- 1. วิดีโอพื้นหลัง -->
+        <video autoplay muted loop playsinline class="intro-video-bg">
+            <source src="intro-video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
 
-        <!-- 2. ไฟล์เสียง MP3 จากเพลง/คลิปที่ต้องการ -->
-        <audio id="introSound" src="crucified.mp3.mp3" preload="auto"></audio>
+        <!-- 2. ไฟล์เสียง MP3 ฉากเปิด -->
+        <audio id="introSound" src="crucified.mp3.mp3" preload="auto"></audio>
 
-        <!-- 3. แผ่นฟิล์มกรองสีมืดเพื่อให้ข้อความอ่านง่าย -->
-        <div class="intro-video-overlay-tint"></div>
+        <!-- 3. แผ่นฟิล์มกรองสีมืด -->
+        <div class="intro-video-overlay-tint"></div>
 
-        <!-- 4. กล่องข้อความและปุ่มเข้าสู่ระบบเพื่อปลดล็อกเสียง -->
-        <div class="intro-content">
-            <div class="intro-warning">🎓 STUDENT PORTFOLIO SYSTEM 🎓</div>
-            <h1 class="intro-title">SHOGUN<span>.PORTFOLIO</span></h1>
-            <p class="intro-subtext" style="margin-bottom: 20px;">SYSTEM READY TO LAUNCH</p>
-            
-            <!-- ปุ่มกดเริ่มเพื่อเปิดใช้งานเสียง -->
-            <button id="startBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; letter-spacing: 2px;">
-                ENTER SYSTEM ⚡
-            </button>
-        </div>
-    </div>
+        <!-- 4. กล่องข้อความและปุ่มเข้าสู่ระบบ -->
+        <div class="intro-content">
+            <div class="intro-warning">🎓 STUDENT PORTFOLIO SYSTEM 🎓</div>
+            <h1 class="intro-title">SHOGUN<span>.PORTFOLIO</span></h1>
+            <p class="intro-subtext" style="margin-bottom: 20px;">SYSTEM READY TO LAUNCH</p>
+            
+            <button id="startBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; letter-spacing: 2px;">
+                ENTER SYSTEM ⚡
+            </button>
+        </div>
+    </div>
 
-    <!-- ปุ่มสลับโหมดระบายความร้อน Godzilla (Heat Vent Mode) มุมขวาล่าง -->
-    <div class="godzilla-controls">
-        <button id="heatVentBtn" class="control-btn" title="Godzilla Heat Vent Mode">
-            <span class="icon">☢️</span>
-            <span class="label">HEAT VENT</span>
-        </button>
-    </div>
+    <!-- เครื่องเล่นเพลงประจำเว็บ (Background Music Player) มุมซ้ายล่าง -->
+    <div class="bg-music-player">
+        <button id="bgMusicToggle" class="music-btn" title="Toggle Music">
+            <span id="musicIcon">🎵</span>
+            <span id="musicStatusText">PLAY MUSIC</span>
+        </button>
+    </div>
+    <!-- ไฟล์เสียงสำหรับเปิดฟังในเว็บ -->
+    <audio id="bgSound" src="Y2Mate.is - - OFFICIAL MV.mp3" preload="auto" loop></audio>
 
-    <!-- Canvas สำหรับวาดแสงเลเซอร์และเอฟเฟกต์เผาหน้าจอ -->
-    <canvas id="laserCanvas"></canvas>
+    <!-- ปุ่มสลับโหมดระบายความร้อน Godzilla (Heat Vent Mode) มุมขวาล่าง -->
+    <div class="godzilla-controls">
+        <button id="heatVentBtn" class="control-btn" title="Godzilla Heat Vent Mode">
+            <span class="icon">☢️</span>
+            <span class="label">HEAT VENT</span>
+        </button>
+    </div>
 
-    <!-- Navigation Bar -->
-    <header class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="logo">SHOGUN<span>.PORTFOLIO</span></a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html" class="active">หน้าแรก</a></li>
-                    <li><a href="profile.html">ประวัติส่วนตัว</a></li>
-                    <li><a href="education.html">การศึกษา</a></li>
-                    <li><a href="hobby.html">งานอดิเรก</a></li>
-                    <li><a href="contact.html">ติดต่อ</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <!-- Canvas สำหรับวาดแสงเลเซอร์และเอฟเฟกต์เผาหน้าจอ -->
+    <canvas id="laserCanvas"></canvas>
 
-    <!-- Content Area -->
-    <main>
-        <section class="hero-section">
-            <div class="hero-container">
-                <div class="hero-text">
-                    <span class="badge">มัธยมศึกษาปีที่ 3/2</span>
-                    <h1>สวัสดี! ฉันคือ <br><span class="highlight">ด.ช.กิตติกร สุธนะ</span></h1>
-                    <p class="tagline">"นักเรียน ม.3 สายลุย ที่มีเป้าหมายพิชิตคณิตศาสตร์ และ... ยึดครองโลก!"</p>
-                    <div class="hero-buttons">
-                        <a href="profile.html" class="btn btn-primary">รู้จักฉันมากขึ้น</a>
-                        <a href="hobby.html" class="btn btn-secondary">ดูงานอดิเรกของฉัน</a>
-                    </div>
-                </div>
-                <div class="hero-image-wrapper">
-                    <div class="image-bg-glow"></div>
-                    <img src="https://placehold.co/400x400/0f172a/c084fc?text=Shogun+Profile" alt="รูปโปรไฟล์ของกิตติกร" class="hero-img">
-                </div>
-            </div>
-        </section>
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">SHOGUN<span>.PORTFOLIO</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">หน้าแรก</a></li>
+                    <li><a href="profile.html">ประวัติส่วนตัว</a></li>
+                    <li><a href="education.html">การศึกษา</a></li>
+                    <li><a href="hobby.html">งานอดิเรก</a></li>
+                    <li><a href="contact.html">ติดต่อ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-        <section class="quick-highlights">
-            <div class="container">
-                <div class="grid-3">
-                    <div class="card stat-card">
-                        <h3>โรงเรียน</h3>
-                        <p>จอมทอง</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>วิชาที่ชอบ</h3>
-                        <p>คณิตศาสตร์</p>
-                    </div>
-                    <div class="card stat-card">
-                        <h3>เป้าหมายสูงสุด</h3>
-                        <p>การครองโลก 🌍</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+    <!-- Content Area -->
+    <main>
+        <section class="hero-section">
+            <div class="hero-container">
+                <div class="hero-text">
+                    <span class="badge">มัธยมศึกษาปีที่ 3/2</span>
+                    <h1>สวัสดี! ฉันคือ <br><span class="highlight">ด.ช.กิตติกร สุธนะ</span></h1>
+                    <p class="tagline">"นักเรียน ม.3 สายลุย ที่มีเป้าหมายพิชิตคณิตศาสตร์ และ... ยึดครองโลก!"</p>
+                    <div class="hero-buttons">
+                        <a href="profile.html" class="btn btn-primary">รู้จักฉันมากขึ้น</a>
+                        <a href="hobby.html" class="btn btn-secondary">ดูงานอดิเรกของฉัน</a>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper">
+                    <div class="image-bg-glow"></div>
+                    <img src="รูปกูเอง.jpg" alt="รูปโปรไฟล์ของกิตติกร" class="hero-img">
+                </div>
+            </div>
+        </section>
 
-    <!-- Footer Area -->
-    <footer>
-        <div class="container footer-container">
-            <div class="footer-info">
-                <h3>SHOGUN<span>.PORTFOLIO</span></h3>
-                <p>ด.ช.กิตติกร สุธนะ (โชกุน) ชั้น ม.3/2 โรงเรียนจอมทอง</p>
-            </div>
-            <ul class="footer-links">
-                <li><a href="index.html">หน้าแรก</a></li>
-                <li><a href="profile.html">ประวัติส่วนตัว</a></li>
-                <li><a href="education.html">การศึกษา</a></li>
-                <li><a href="hobby.html">งานอดิเรก</a></li>
-                <li><a href="contact.html">ติดต่อ</a></li>
-            </ul>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Kittikorn Suthana. All Rights Reserved.</p>
-        </div>
-    </footer>
+        <section class="quick-highlights">
+            <div class="container">
+                <div class="grid-3">
+                    <div class="card stat-card">
+                        <h3>โรงเรียน</h3>
+                        <p>จอมทอง</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>วิชาที่ชอบ</h3>
+                        <p>คณิตศาสตร์</p>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>เป้าหมายสูงสุด</h3>
+                        <p>การครองโลก 🌍</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-    <!-- Script สำหรับควบคุม Canvas และเอฟเฟกต์ Godzilla -->
-    <script src="laser.js"></script>
+    <!-- Footer Area -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-info">
+                <h3>SHOGUN<span>.PORTFOLIO</span></h3>
+                <p>ด.ช.กิตติกร สุธนะ (โชกุน) ชั้น ม.3/2 โรงเรียนจอมทอง</p>
+            </div>
+            <ul class="footer-links">
+                <li><a href="index.html">หน้าแรก</a></li>
+                <li><a href="profile.html">ประวัติส่วนตัว</a></li>
+                <li><a href="education.html">การศึกษา</a></li>
+                <li><a href="hobby.html">งานอดิเรก</a></li>
+                <li><a href="contact.html">ติดต่อ</a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Kittikorn Suthana. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Script สำหรับควบคุม Canvas และเอฟเฟกต์ Godzilla -->
+    <script src="laser.js"></script>
 </body>
-</html>                                                                                                                                                         
+</html>
