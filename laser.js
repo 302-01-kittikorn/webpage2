@@ -1,4 +1,4 @@
-// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Fully Automatic)
+// Shin Godzilla Intro, Canvas Effect & Heat Vent Mode (Auto-Play Edition)
 window.addEventListener('load', function() {
     let canvas = document.getElementById('laserCanvas');
     if (!canvas) {
@@ -14,7 +14,8 @@ window.addEventListener('load', function() {
     let particles = [];
     let fireEmbers = [];
 
-    let state = 'ENTER'; // เริ่มต้นฉากเปิดทันทีอัตโนมัติ
+    // เริ่มต้นสถานะ ENTER ทันทีที่โหลดหน้าเว็บ
+    let state = 'ENTER'; 
     let introProgress = 0; 
     let postIntroProgress = 0; 
     let godzillaX = -380; 
@@ -27,34 +28,34 @@ window.addEventListener('load', function() {
     const introSound = document.getElementById('introSound');
 
     // ----------------------------------------------------
-    // AUTO START AUDIO & FADE CONTROL (เปิดเสียงเฉพาะฉากเปิด)
+    // AUTOMATIC START & AUDIO PLAY
     // ----------------------------------------------------
-    if (introSound) {
-        introSound.currentTime = 0;
-        introSound.volume = 1.0; // ความดังเต็มที่ช่วงฉากเปิด
-        introSound.play().catch(err => {
-            console.log("Autoplay blocked by browser. Playing on first interaction.", err);
-            // ป้องกันกรณีเบราว์เซอร์บล็อก Autoplay ให้เล่นเมื่อขยับหรือแตะหน้าจอครั้งแรก
-            const handleUserInteraction = () => {
-                introSound.play();
-                window.removeEventListener('click', handleUserInteraction);
-                window.removeEventListener('touchstart', handleUserInteraction);
-                window.removeEventListener('mousemove', handleUserInteraction);
-            };
-            window.addEventListener('click', handleUserInteraction);
-            window.addEventListener('touchstart', handleUserInteraction);
-            window.addEventListener('mousemove', handleUserInteraction);
-        });
+    // ซ่อนกล่องข้อความปุ่มกดอัตโนมัติ
+    const introContent = document.querySelector('.intro-content');
+    if (introContent) {
+        introContent.style.display = 'none';
     }
 
-    // ฟังก์ชันค่อยๆ ลดเสียงจนหยุดเล่นสนิท
+    // พยายามเล่นเพลงอัตโนมัติ
+    if (introSound) {
+        introSound.currentTime = 0;
+        introSound.volume = 1.0;
+        const playPromise = introSound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(err => {
+                console.log("Autoplay audio was blocked by browser policy, but animation will continue.");
+            });
+        }
+    }
+
+    // ฟังก์ชันค่อยๆ ลดเสียงจนหยุดเล่นสนิทเมื่อลำแสงเลเซอร์ยิงจบ
     function fadeAndStopAudio() {
         if (!introSound) return;
         const fadeAudio = setInterval(() => {
             if (introSound.volume > 0.1) {
                 introSound.volume -= 0.1;
             } else {
-                introSound.pause(); // หยุดเล่นเสียง
+                introSound.pause();
                 introSound.currentTime = 0;
                 introSound.volume = 0;
                 clearInterval(fadeAudio);
@@ -275,7 +276,7 @@ window.addEventListener('load', function() {
                     state = 'BEAM';
                     introProgress = 0;
                     
-                    // ปิดฉาก Intro เมื่อยิงเลเซอร์
+                    // ปิดฉาก Intro เมื่อเริ่มยิงเลเซอร์
                     if (introOverlay) {
                         introOverlay.classList.add('fade-out');
                         setTimeout(() => {
@@ -283,7 +284,6 @@ window.addEventListener('load', function() {
                         }, 800);
                     }
 
-                    // ปิดเสียงเมื่อฉากเปิดจบ
                     fadeAndStopAudio();
                 }
             } 
