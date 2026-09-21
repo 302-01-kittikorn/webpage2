@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Video Intro Overlay) -->
+    <!-- ฉากเปิดตอนเข้าหน้าเว็บ (Video Intro Overlay - Student Edition) -->
     <div id="introOverlay" class="intro-overlay">
         <!-- 1. วิดีโอพื้นหลัง -->
         <video autoplay muted loop playsinline class="intro-video-bg">
@@ -18,30 +18,21 @@
         <!-- 2. ไฟล์เสียง MP3 ฉากเปิด -->
         <audio id="introSound" src="crucified.mp3.mp3" preload="auto"></audio>
 
-        <!-- 3. แผ่นฟิล์มกรองสีมืด -->
+        <!-- 3. แผ่นฟิล์มกรองสีมืดเพื่อให้ข้อความอ่านง่าย -->
         <div class="intro-video-overlay-tint"></div>
 
-        <!-- 4. กล่องข้อความและปุ่มเข้าสู่ระบบ -->
+        <!-- 4. กล่องข้อความและปุ่มเข้าสู่ระบบเพื่อปลดล็อกเสียง -->
         <div class="intro-content">
             <div class="intro-warning">🎓 STUDENT PORTFOLIO SYSTEM 🎓</div>
             <h1 class="intro-title">SHOGUN<span>.PORTFOLIO</span></h1>
             <p class="intro-subtext" style="margin-bottom: 20px;">SYSTEM READY TO LAUNCH</p>
             
+            <!-- ปุ่มกดเริ่มเพื่อเปิดใช้งานเสียง -->
             <button id="startBtn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; letter-spacing: 2px;">
                 ENTER SYSTEM ⚡
             </button>
         </div>
     </div>
-
-    <!-- เครื่องเล่นเพลงประจำเว็บ (Background Music Player) มุมซ้ายล่าง -->
-    <div class="bg-music-player">
-        <button id="bgMusicToggle" class="music-btn" title="Toggle Music">
-            <span id="musicIcon">🎵</span>
-            <span id="musicStatusText">PLAY MUSIC</span>
-        </button>
-    </div>
-    <!-- ไฟล์เสียงสำหรับเปิดฟังในเว็บ -->
-    <audio id="bgSound" src="Y2Mate.is - - OFFICIAL MV.mp3" preload="auto" loop></audio>
 
     <!-- ปุ่มสลับโหมดระบายความร้อน Godzilla (Heat Vent Mode) มุมขวาล่าง -->
     <div class="godzilla-controls">
