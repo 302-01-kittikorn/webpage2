@@ -1,163 +1,178 @@
-/* ==========================================
-   3. INTRO OVERLAY SYSTEM (SCI-FI HUD LOADING BAR)
-   ========================================== */
+/* Reset & General Setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#laserCanvas {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 100 !important;
+    pointer-events: none !important;
+}
+
+body {
+    background-color: #0b0f19;
+    color: #f1f5f9;
+    line-height: 1.6;
+    background-image: 
+        linear-gradient(to bottom, rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.92)),
+        url('shin.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+h1, h2, h3, h4 { color: #ffffff; }
+
+.highlight {
+    background: linear-gradient(45deg, #c084fc, #a855f7, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.badge {
+    background: rgba(192, 132, 252, 0.15);
+    color: #c084fc;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+/* Navbar */
+.navbar {
+    position: sticky;
+    top: 0;
+    background: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(192, 132, 252, 0.2);
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.logo { font-size: 1.3rem; font-weight: 700; color: #fff; text-decoration: none; }
+.logo span { color: #c084fc; }
+.nav-links { display: flex; list-style: none; gap: 20px; }
+.nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 500; padding: 6px 14px; border-radius: 8px; }
+.nav-links a:hover, .nav-links a.active { color: #ffffff; background: rgba(192, 132, 252, 0.25); }
+
+/* Card & Buttons */
+.card {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(192, 132, 252, 0.2);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.btn { display: inline-block; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; cursor: pointer; }
+.btn-primary { background: linear-gradient(45deg, #a855f7, #c084fc); color: #ffffff; }
+.btn-secondary { background: transparent; color: #fff; border: 1px solid rgba(192, 132, 252, 0.4); }
+
+/* Hero */
+.hero-section { padding: 80px 0; }
+.hero-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.hero-text h1 { font-size: 2.8rem; margin-bottom: 15px; }
+.tagline { font-size: 1.1rem; color: #94a3b8; margin-bottom: 25px; }
+.hero-buttons { display: flex; gap: 15px; }
+.hero-image-wrapper { position: relative; display: flex; justify-content: center; }
+.hero-img { width: 300px; height: 300px; border-radius: 50%; object-fit: cover; border: 3px solid #c084fc; }
+
+/* Grid */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.stat-card { text-align: center; }
+.stat-card h3 { font-size: 1rem; color: #94a3b8; }
+.stat-card p { font-size: 1.3rem; font-weight: bold; color: #c084fc; }
+
+/* Footer */
+footer { background: rgba(5, 8, 15, 0.95); border-top: 1px solid rgba(192, 132, 252, 0.2); padding: 40px 0 20px; }
+.footer-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.footer-links { display: flex; list-style: none; gap: 15px; }
+.footer-links a { color: #94a3b8; text-decoration: none; }
+.footer-bottom { text-align: center; color: #64748b; font-size: 0.85rem; }
+
+/* Godzilla Controls */
+.godzilla-controls { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
+.control-btn {
+    background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(192, 132, 252, 0.4);
+    color: #e2e8f0; padding: 10px 18px; border-radius: 20px; cursor: pointer; display: flex; gap: 8px;
+}
+
+/* INTRO OVERLAY SYSTEM (ฉากบังหน้าจอ) */
 .intro-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
     z-index: 99999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    overflow: hidden;
+    display: flex; justify-content: center; align-items: center;
     transition: opacity 0.8s ease, visibility 0.8s ease;
 }
 
-/* วิดีโอขยายเต็มหน้าจอ 100% พอดี ไม่เบี้ยว */
-.intro-video-bg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100vw;
-    height: 100vh;
-    min-width: 100%;
-    min-height: 100%;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
-    z-index: 1;
-}
-
-/* แผ่นกรองสีมืดเพื่อให้ข้อความอ่านง่ายขึ้น */
-.intro-video-overlay-tint {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(5, 8, 17, 0.45), rgba(5, 8, 17, 0.8));
-    z-index: 2;
-}
-
+/* เมื่อโหลดเสร็จให้ซ่อนแบบสนิท เพื่อให้มองเห็นข้อมูลเว็บด้านหลัง */
 .intro-overlay.fade-out {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
-/* --- ดีไซน์กล่อง Sci-Fi HUD Loading Card (แก้ไขใหม่ตามแบบรูปภาพ) --- */
+.intro-video-bg {
+    position: absolute; top: 50%; left: 50%;
+    width: 100vw; height: 100vh;
+    transform: translate(-50%, -50%);
+    object-fit: cover; z-index: 1;
+}
+
+.intro-video-overlay-tint {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 8, 17, 0.7); z-index: 2;
+}
+
 .hud-loader-card {
-    position: relative;
-    z-index: 3;
-    width: 90%;
-    max-width: 520px;
-    padding: 24px 30px;
-    background: rgba(10, 8, 20, 0.82);
-    border: 1px solid rgba(192, 132, 252, 0.35);
-    border-radius: 8px;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(168, 85, 247, 0.15);
+    position: relative; z-index: 3;
+    width: 90%; max-width: 500px; padding: 30px;
+    background: rgba(10, 15, 28, 0.85);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    font-family: 'Consolas', 'Courier New', Courier, monospace;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    border-radius: 16px;
+    display: flex; flex-direction: column; gap: 15px;
 }
 
-/* ส่วนหัวข้อ (LOADING... / ปุ่ม ENTER SYSTEM) */
-.hud-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 42px;
-}
-
-.hud-title {
-    color: #ffffff;
-    font-size: 1.3rem;
-    font-weight: bold;
-    letter-spacing: 4px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(192, 132, 252, 0.8);
-    animation: hudBlink 1.2s infinite alternate;
-}
-
-/* ปุ่ม ENTER SYSTEM เมื่อโหลดครบ 100% */
+.hud-header { display: flex; justify-content: center; align-items: center; min-height: 40px; }
+.hud-title { font-size: 1.5rem; font-weight: bold; color: #fff; letter-spacing: 2px; }
 .hud-enter-btn {
-    background: linear-gradient(90deg, #7e22ce, #a855f7);
-    color: #ffffff;
-    border: 1.5px solid #e9d5ff;
-    padding: 8px 28px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    border-radius: 4px;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
-    transition: all 0.25s ease;
+    background: linear-gradient(45deg, #a855f7, #c084fc);
+    color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;
 }
 
-.hud-enter-btn:hover {
-    background: #ffffff;
-    color: #090a10;
-    box-shadow: 0 0 25px rgba(255, 255, 255, 1), 0 0 35px rgba(192, 132, 252, 0.9);
-    transform: scale(1.04);
-}
+.hud-bar-container { display: flex; align-items: center; gap: 8px; }
+.hud-bracket { width: 6px; height: 18px; border: 2px solid #c084fc; }
+.left-bracket { border-right: none; }
+.right-bracket { border-left: none; }
+.hud-bar-frame { flex: 1; height: 12px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden; }
+.hud-bar-fill { width: 0%; height: 100%; background: #c084fc; transition: width 0.1s linear; }
 
-/* ตัวโครงสร้างหลอด Loading แบบในรูป */
-.hud-bar-container {
-    position: relative;
-    padding: 4px 12px;
-}
-
-.hud-bar-frame {
-    width: 100%;
-    height: 16px;
-    background: rgba(5, 5, 12, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.9);
-    overflow: hidden;
-}
-
-.hud-bar-fill {
-    width: 0%;
-    height: 100%;
-    background: #ffffff;
-    box-shadow: 0 0 12px #ffffff, 0 0 20px #c084fc;
-    transition: width 0.1s linear;
-}
-
-/* ปีกขอบ HUD ซ้าย-ขวา */
-.hud-bracket {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    border: 2px solid #ffffff;
-}
-
-.left-bracket { 
-    left: 0; 
-    border-right: none; 
-}
-
-.right-bracket { 
-    right: 0; 
-    border-left: none; 
-}
-
-/* ข้อความตัวเลขเปอร์เซ็นต์และโค้ดระบบด้านล่าง */
-.hud-footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: #c084fc;
-    letter-spacing: 1px;
-    opacity: 0.85;
-}
-
-@keyframes hudBlink {
-    0% { opacity: 1; }
-    100% { opacity: 0.4; }
-}
+.hud-footer { display: flex; justify-content: space-between; color: #94a3b8; font-size: 0.85rem; }
+.hud-percent { color: #c084fc; font-weight: bold; }
